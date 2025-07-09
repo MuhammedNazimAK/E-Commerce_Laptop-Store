@@ -4,7 +4,7 @@ A full-featured e-commerce web application built with a custom backend and dynam
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
 🟢 [Live Site](https://laptopstore.mooo.com)
 
