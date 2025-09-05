@@ -12,18 +12,19 @@ A full-featured e-commerce web application built with a custom backend and dynam
 
 ## Tech Stack
 
-- **Frontend:** Bootstrap, JavaScript  
-- **Backend:** Node.js, Express.js  
-- **Database:** MongoDB  
-- **Image Storage:** Cloudinary  
-- **Payments:** Razorpay  
-- **Deployment:** AWS EC2  
+- **Frontend:** Bootstrap, JavaScript
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB
+- **Image Storage:** Cloudinary
+- **Payments:** Razorpay
+- **Deployment:** AWS EC2
 
 ---
 
 ## Features Overview
 
 ### User Side
+
 - OTP-based signup with validation & social login (Google)
 - Browse laptops with search, filters, and sorting
 - Product details with specs, zoom, stock status, and recommendations
@@ -35,6 +36,7 @@ A full-featured e-commerce web application built with a custom backend and dynam
 - Resume failed payments from order history
 
 ### Admin Side
+
 - Admin authentication
 - User management (block/unblock)
 - Category & product management with image cropping (min. 3 images)

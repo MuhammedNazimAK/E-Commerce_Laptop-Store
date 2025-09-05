@@ -17,10 +17,10 @@ function handleWishlistClick(event) {
   }
 }
 
-
 function addToWishlist(productId, button) {
-  axios.post('/add-to-wishlist', { productId })
-    .then(response => {
+  axios
+    .post('/add-to-wishlist', { productId })
+    .then((response) => {
       if (response.data.success) {
         if (response.data.added) {
           showSuccess('Product added to wishlist');
@@ -37,24 +37,26 @@ function addToWishlist(productId, button) {
         showError('Failed to update wishlist');
       }
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error:', error);
       showError('An error occurred while updating wishlist');
     });
 }
 
-
 function loadWishlistItems() {
-  axios.get('/wishlist-items')
-    .then(response => {
-      const wishlistTable = document.querySelector('.wishlish-table-wrapper tbody');
+  axios
+    .get('/wishlist-items')
+    .then((response) => {
+      const wishlistTable = document.querySelector(
+        '.wishlish-table-wrapper tbody'
+      );
       wishlistTable.innerHTML = '';
-      response.data.forEach(item => {
+      response.data.forEach((item) => {
         const row = createWishlistItemRow(item);
         wishlistTable.appendChild(row);
       });
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error:', error);
       showError('An error occurred while loading wishlist items');
     });
@@ -74,8 +76,9 @@ function createWishlistItemRow(item) {
 }
 
 function removeFromWishlist(productId) {
-  axios.put('/remove-from-wishlist', { productId })
-    .then(response => {
+  axios
+    .put('/remove-from-wishlist', { productId })
+    .then((response) => {
       if (response.data.success) {
         updateItemCounts();
         showSuccess('Product removed from wishlist');
@@ -86,15 +89,16 @@ function removeFromWishlist(productId) {
         showError('Failed to remove product from wishlist');
       }
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error:', error);
       showError('An error occurred while removing from wishlist');
     });
 }
 
 function moveToCart(productId) {
-  axios.post('/add-to-cart', { productId })
-    .then(response => {
+  axios
+    .post('/add-to-cart', { productId })
+    .then((response) => {
       if (response.data.success) {
         removeFromWishlist(productId);
         showSuccess('Product moved to cart');
@@ -102,7 +106,7 @@ function moveToCart(productId) {
         showError('Failed to move product to cart');
       }
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error:', error);
       showError('An error occurred while moving to cart');
     });
@@ -110,10 +114,10 @@ function moveToCart(productId) {
 
 function showError(message) {
   Swal.fire({
-    icon: "error",
+    icon: 'error',
     text: message,
     toast: true,
-    position: "top-right",
+    position: 'top-right',
     showConfirmButton: false,
     timerProgressBar: true,
     timer: 3000,
@@ -122,10 +126,10 @@ function showError(message) {
 
 function showSuccess(message) {
   Swal.fire({
-    icon: "success",
+    icon: 'success',
     text: message,
     toast: true,
-    position: "top-right",
+    position: 'top-right',
     showConfirmButton: false,
     timerProgressBar: true,
     timer: 3000,

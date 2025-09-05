@@ -6,7 +6,9 @@ const StatusCodes = require('../public/javascript/statusCodes');
 const authenticateUser = (req, res) => {
   const userId = req.session?.user?._id;
   if (!userId) {
-    res.status(StatusCodes.UNAUTHORIZED).json({ message: "Unauthorized: User not logged in" });
+    res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: 'Unauthorized: User not logged in' });
     return null;
   }
   return userId;
@@ -21,7 +23,9 @@ const getBalance = async (req, res) => {
     res.json({ balance: wallet?.balance ?? 0 });
   } catch (err) {
     console.error('Error fetching wallet balance:', err);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Error fetching wallet balance", error: err.message });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error fetching wallet balance', error: err.message });
   }
 };
 
@@ -31,7 +35,9 @@ const useFunds = async (req, res) => {
 
   const { amount, orderId } = req.body;
   if (typeof amount !== 'number' || amount <= 0 || !orderId) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: "Invalid amount or orderId" });
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: 'Invalid amount or orderId' });
   }
 
   const session = await mongoose.startSession();
@@ -48,25 +54,40 @@ const useFunds = async (req, res) => {
             amount,
             type: 'debit',
             status: 'completed',
-            orderId: orderId,
-            description: 'Payment for order'
-          }
-        }
+            orderId,
+            description: 'Payment for order',
+          },
+        },
       },
       { new: true, session }
     );
 
     if (!wallet) {
       await session.abortTransaction();
-      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: "Insufficient funds or wallet not found" });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({
+          success: false,
+          message: 'Insufficient funds or wallet not found',
+        });
     }
 
     await session.commitTransaction();
-    res.json({ success: true, message: 'Payment successful', balance: wallet.balance });
+    res.json({
+      success: true,
+      message: 'Payment successful',
+      balance: wallet.balance,
+    });
   } catch (error) {
     await session.abortTransaction();
     console.error('Error using funds:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: "Error using funds", error: error.message });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: 'Error using funds',
+        error: error.message,
+      });
   } finally {
     session.endSession();
   }
@@ -81,20 +102,19 @@ const getOrCreateWallet = async (userId) => {
   return wallet;
 };
 
-
 const getTransactions = async (req, res) => {
   const userId = authenticateUser(req, res);
   if (!userId) return;
-  
+
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
   try {
     const wallet = await getOrCreateWallet(userId);
-    
+
     const totalTransactions = wallet.transactions.length;
     const totalPages = Math.ceil(totalTransactions / limit);
-    
+
     const transactions = wallet.transactions
       .sort((a, b) => b.createdAt - a.createdAt)
       .slice((page - 1) * limit, page * limit);
@@ -103,18 +123,29 @@ const getTransactions = async (req, res) => {
       transactions,
       currentPage: page,
       totalPages,
-      totalTransactions
+      totalTransactions,
     });
   } catch (error) {
     console.error('Error fetching wallet transactions:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Error fetching wallet transactions", error: error.message });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        message: 'Error fetching wallet transactions',
+        error: error.message,
+      });
   }
 };
 
-const addWalletTransaction = async (userId, amount, type, orderId, description) => {
+const addWalletTransaction = async (
+  userId,
+  amount,
+  type,
+  orderId,
+  description
+) => {
   try {
     const wallet = await Wallet.findOne({ userId });
-    
+
     if (!wallet) {
       throw new Error('Wallet not found for user');
     }
@@ -125,11 +156,11 @@ const addWalletTransaction = async (userId, amount, type, orderId, description) 
       amount,
       type,
       status: 'completed',
-      description
+      description,
     };
 
     wallet.transactions.push(transaction);
-    
+
     if (type === 'credit') {
       wallet.balance += amount;
     } else if (type === 'debit') {
@@ -144,10 +175,9 @@ const addWalletTransaction = async (userId, amount, type, orderId, description) 
   }
 };
 
-
 module.exports = {
   getBalance,
   useFunds,
   getTransactions,
-  addWalletTransaction
+  addWalletTransaction,
 };

@@ -25,11 +25,13 @@ exports.getDashboardData = async (req, res) => {
       totalCategories,
       recentOrders,
       salesData,
-      topLists
+      topLists,
     });
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error fetching dashboard data' });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error fetching dashboard data' });
   }
 };
 
@@ -40,61 +42,57 @@ exports.getSalesData = async (req, res) => {
     res.json(salesData);
   } catch (error) {
     console.error('Error fetching sales data:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error fetching sales data' });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error fetching sales data' });
   }
 };
 
 async function getSalesData(filter) {
-  let startDate, endDate, groupBy, dateFormat;
+  let startDate, dateFormat;
 
   switch (filter) {
     case 'yearly':
       startDate = moment().subtract(5, 'years').startOf('year');
-      groupBy = { $year: '$createdAt' };
       dateFormat = '%Y';
       break;
     case 'monthly':
       startDate = moment().subtract(12, 'months').startOf('month');
-      groupBy = { 
-        year: { $year: '$createdAt' },
-        month: { $month: '$createdAt' }
-      };
       dateFormat = '%Y-%m';
       break;
     case 'weekly':
       startDate = moment().subtract(12, 'weeks').startOf('week');
-      groupBy = { 
-        year: { $year: '$createdAt' },
-        week: { $week: '$createdAt' }
-      };
       dateFormat = '%Y-W%V';
       break;
     case 'daily':
       startDate = moment().subtract(30, 'days').startOf('day');
-      groupBy = { 
-        year: { $year: '$createdAt' },
-        month: { $month: '$createdAt' },
-        day: { $dayOfMonth: '$createdAt' }
-      };
       dateFormat = '%Y-%m-%d';
       break;
   }
 
-  endDate = moment().endOf('day');
+  const endDate = moment().endOf('day');
 
   const salesData = await Order.aggregate([
-    { $match: { createdAt: { $gte: startDate.toDate(), $lte: endDate.toDate() } } },
-    { $group: {
-      _id: groupBy,
-      totalRevenue: { $sum: '$total' },
-      orderCount: { $sum: 1 },
-      avgOrderValue: { $avg: '$total' }
-    }},
-    { $sort: { '_id': 1 } }
+    {
+      $match: {
+        createdAt: { $gte: startDate.toDate(), $lte: endDate.toDate() },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: dateFormat, date: '$createdAt' }
+        },
+        totalRevenue: { $sum: '$total' },
+        orderCount: { $sum: 1 },
+        avgOrderValue: { $avg: '$total' },
+      },
+    },
+    { $sort: { _id: 1 } },
   ]);
 
   let cumulativeRevenue = 0;
-  const formattedData = salesData.map(item => {
+  const formattedData = salesData.map((item) => {
     let dateString;
     if (filter === 'yearly') {
       dateString = item._id.toString();
@@ -111,7 +109,7 @@ async function getSalesData(filter) {
       totalRevenue: item.totalRevenue,
       orderCount: item.orderCount,
       avgOrderValue: item.avgOrderValue,
-      cumulativeRevenue
+      cumulativeRevenue,
     };
   });
 
@@ -122,77 +120,94 @@ async function getTopLists() {
   const startDate = moment().subtract(30, 'days').startOf('day').toDate();
   const endDate = moment().endOf('day').toDate();
 
-
   const topProducts = await Order.aggregate([
     { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
     { $unwind: '$products' },
-    { $lookup: {
-      from: 'products',
-      localField: 'products.product',
-      foreignField: '_id',
-      as: 'productDetails'
-    }},
+    {
+      $lookup: {
+        from: 'products',
+        localField: 'products.product',
+        foreignField: '_id',
+        as: 'productDetails',
+      },
+    },
     { $unwind: '$productDetails' },
-    { $group: {
-      _id: '$products.product',
-      name: { $first: '$productDetails.basicInformation.name' },
-      revenue: { $sum: { $multiply: ['$products.price', '$products.quantity'] } }
-    }},
+    {
+      $group: {
+        _id: '$products.product',
+        name: { $first: '$productDetails.basicInformation.name' },
+        revenue: {
+          $sum: { $multiply: ['$products.price', '$products.quantity'] },
+        },
+      },
+    },
     { $sort: { revenue: -1 } },
-    { $limit: 10 }
+    { $limit: 10 },
   ]);
-
 
   const topCategories = await Order.aggregate([
     { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
     { $unwind: '$products' },
-    { $lookup: {
-      from: 'products',
-      localField: 'products.product',
-      foreignField: '_id',
-      as: 'productDetails'
-    }},
+    {
+      $lookup: {
+        from: 'products',
+        localField: 'products.product',
+        foreignField: '_id',
+        as: 'productDetails',
+      },
+    },
     { $unwind: '$productDetails' },
     { $unwind: '$productDetails.category' },
-    { $lookup: {
-      from: 'categories',
-      localField: 'productDetails.category',
-      foreignField: '_id',
-      as: 'categoryDetails'
-    }},
+    {
+      $lookup: {
+        from: 'categories',
+        localField: 'productDetails.category',
+        foreignField: '_id',
+        as: 'categoryDetails',
+      },
+    },
     { $unwind: '$categoryDetails' },
-    { $group: {
-      _id: '$categoryDetails._id',
-      name: { $first: '$categoryDetails.name' },
-      revenue: { $sum: { $multiply: ['$products.price', '$products.quantity'] } }
-    }},
+    {
+      $group: {
+        _id: '$categoryDetails._id',
+        name: { $first: '$categoryDetails.name' },
+        revenue: {
+          $sum: { $multiply: ['$products.price', '$products.quantity'] },
+        },
+      },
+    },
     { $sort: { revenue: -1 } },
-    { $limit: 10 }
+    { $limit: 10 },
   ]);
-
 
   const topBrands = await Order.aggregate([
     { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
     { $unwind: '$products' },
-    { $lookup: {
-      from: 'products',
-      localField: 'products.product',
-      foreignField: '_id',
-      as: 'productDetails'
-    }},
+    {
+      $lookup: {
+        from: 'products',
+        localField: 'products.product',
+        foreignField: '_id',
+        as: 'productDetails',
+      },
+    },
     { $unwind: '$productDetails' },
-    { $group: {
-      _id: '$productDetails.basicInformation.brand',
-      name: { $first: '$productDetails.basicInformation.brand' },
-      revenue: { $sum: { $multiply: ['$products.price', '$products.quantity'] } }
-    }},
+    {
+      $group: {
+        _id: '$productDetails.basicInformation.brand',
+        name: { $first: '$productDetails.basicInformation.brand' },
+        revenue: {
+          $sum: { $multiply: ['$products.price', '$products.quantity'] },
+        },
+      },
+    },
     { $sort: { revenue: -1 } },
-    { $limit: 10 }
+    { $limit: 10 },
   ]);
 
   return {
     products: topProducts,
     categories: topCategories,
-    brands: topBrands
+    brands: topBrands,
   };
 }

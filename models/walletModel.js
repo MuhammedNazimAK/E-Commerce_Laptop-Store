@@ -2,51 +2,57 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const walletTransactionSchema = new Schema({
+const walletTransactionSchema = new Schema(
+  {
     transactionId: {
-        type: String,
-        required: true,
-        unique: true
+      type: String,
+      required: true,
+      unique: true,
     },
     orderId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Order',
-        required: false
+      type: Schema.Types.ObjectId,
+      ref: 'Order',
+      required: false,
     },
     amount: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     type: {
-        type: String,
-        enum: ['credit', 'debit'],
-        required: true
+      type: String,
+      enum: ['credit', 'debit'],
+      required: true,
     },
     status: {
-        type: String,
-        enum: ['pending', 'completed', 'failed', 'refunded'],
-        default: 'pending'
+      type: String,
+      enum: ['pending', 'completed', 'failed', 'refunded'],
+      default: 'pending',
     },
     description: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true });
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
-const walletSchema = new Schema({
+const walletSchema = new Schema(
+  {
     userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        unique: true 
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      unique: true,
     },
     balance: {
-        type: Number,
-        required: true,
-        default: 0 
+      type: Number,
+      required: true,
+      default: 0,
     },
-    transactions: [walletTransactionSchema]
-}, { timestamps: true });
+    transactions: [walletTransactionSchema],
+  },
+  { timestamps: true }
+);
 
 const Wallet = mongoose.model('Wallet', walletSchema);
 

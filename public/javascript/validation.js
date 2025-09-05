@@ -1,21 +1,21 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const registerForm = document.getElementById("registerForm");
+document.addEventListener('DOMContentLoaded', function () {
+  const registerForm = document.getElementById('registerForm');
   if (registerForm) {
-    registerForm.addEventListener("submit", validateRegisterForm);
-    const passwordInput = document.getElementById("password");
-    const confirmPasswordInput = document.getElementById("confirmPassword");
+    registerForm.addEventListener('submit', validateRegisterForm);
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
 
     if (passwordInput) {
-      passwordInput.addEventListener("input", validatePassword);
+      passwordInput.addEventListener('input', validatePassword);
     }
     if (confirmPasswordInput) {
-      confirmPasswordInput.addEventListener("input", validateConfirmPassword);
+      confirmPasswordInput.addEventListener('input', validateConfirmPassword);
     }
   }
 
-  const loginForm = document.getElementById("loginForm");
+  const loginForm = document.getElementById('loginForm');
   if (loginForm) {
-    loginForm.addEventListener("submit", validateLoginForm);
+    loginForm.addEventListener('submit', validateLoginForm);
   }
 });
 
@@ -23,34 +23,36 @@ function validateRegisterForm(event) {
   let isValid = true;
   const fields = [
     {
-      id: "firstName",
+      id: 'firstName',
       validation: isNotEmpty,
-      errorMsg: "First name is required",
-      invalidMsg: "First name is invalid",
+      errorMsg: 'First name is required',
+      invalidMsg: 'First name is invalid',
     },
     {
-      id: "email",
+      id: 'email',
       validation: isValidEmail,
-      errorMsg: "Email is required",
-      invalidMsg: "Please enter a valid email address",
+      errorMsg: 'Email is required',
+      invalidMsg: 'Please enter a valid email address',
     },
     {
-      id: "password",
+      id: 'password',
       validation: isValidPassword,
-      errorMsg: "Password is required",
-      invalidMsg: "Password must be at least 6 characters, including uppercase, lowercase, and a number.",
+      errorMsg: 'Password is required',
+      invalidMsg:
+        'Password must be at least 6 characters, including uppercase, lowercase, and a number.',
     },
     {
-      id: "confirmPassword",
-      validation: (value) => value === document.getElementById("password").value,
-      errorMsg: "Confirm password is required",
-      invalidMsg: "Passwords do not match",
+      id: 'confirmPassword',
+      validation: (value) =>
+        value === document.getElementById('password').value,
+      errorMsg: 'Confirm password is required',
+      invalidMsg: 'Passwords do not match',
     },
     {
-      id: "mobile",
+      id: 'mobile',
       validation: isValidMobile,
-      errorMsg: "Mobile number is required",
-      invalidMsg: "Please enter a valid mobile number",
+      errorMsg: 'Mobile number is required',
+      invalidMsg: 'Please enter a valid mobile number',
     },
   ];
 
@@ -60,14 +62,14 @@ function validateRegisterForm(event) {
     if (!isNotEmpty(input.value)) {
       isValid = false;
       errorElement.textContent = field.errorMsg;
-      errorElement.style.display = "block";
+      errorElement.style.display = 'block';
     } else if (!field.validation(input.value)) {
       isValid = false;
       errorElement.textContent = field.invalidMsg;
-      errorElement.style.display = "block";
+      errorElement.style.display = 'block';
     } else {
-      errorElement.textContent = "";
-      errorElement.style.display = "none";
+      errorElement.textContent = '';
+      errorElement.style.display = 'none';
     }
   });
 
@@ -75,90 +77,90 @@ function validateRegisterForm(event) {
     event.preventDefault();
   } else {
     const formData = new FormData(event.target);
-    fetch("/signup", {
-      method: "POST",
+    fetch('/signup', {
+      method: 'POST',
       body: formData,
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          window.location.href = "/login";
+          window.location.href = '/login';
         } else {
           handleServerError(data.errors);
         }
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error('Error:', error));
   }
 }
 
 function validateLoginForm(event) {
   let isValid = true;
 
-  const email = document.getElementById("email");
-  const password = document.getElementById("password");
-  const emailError = document.getElementById("emailError");
-  const passwordError = document.getElementById("passwordError");
+  const email = document.getElementById('email');
+  const password = document.getElementById('password');
+  const emailError = document.getElementById('emailError');
+  const passwordError = document.getElementById('passwordError');
 
   // Reset error messages
-  emailError.style.display = "none";
-  passwordError.style.display = "none";
+  emailError.style.display = 'none';
+  passwordError.style.display = 'none';
 
   if (!isNotEmpty(email.value)) {
     isValid = false;
-    emailError.textContent = "Email is required";
-    emailError.style.display = "block";
+    emailError.textContent = 'Email is required';
+    emailError.style.display = 'block';
   } else if (!isValidEmail(email.value)) {
     isValid = false;
-    emailError.textContent = "Please enter a valid email address";
-    emailError.style.display = "block";
+    emailError.textContent = 'Please enter a valid email address';
+    emailError.style.display = 'block';
   }
 
   if (!isNotEmpty(password.value)) {
     isValid = false;
-    passwordError.textContent = "Password is required";
-    passwordError.style.display = "block";
+    passwordError.textContent = 'Password is required';
+    passwordError.style.display = 'block';
   }
 
   if (!isValid) {
     event.preventDefault();
   } else {
     const formData = new FormData(event.target);
-    fetch("/login", {
-      method: "POST",
+    fetch('/login', {
+      method: 'POST',
       body: formData,
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          window.location.href = "/home";
+          window.location.href = '/home';
         } else {
           handleServerError(data.errors);
         }
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error('Error:', error));
   }
 }
 
 function validatePassword() {
-  const password = document.getElementById("password").value;
-  const passwordError = document.getElementById("passwordError");
+  const password = document.getElementById('password').value;
+  const passwordError = document.getElementById('passwordError');
 
   const conditions = [
     {
       test: /[a-z]/,
-      message: "Password must include at least one lowercase letter.",
+      message: 'Password must include at least one lowercase letter.',
     },
     {
       test: /[A-Z]/,
-      message: "Password must include at least one uppercase letter.",
+      message: 'Password must include at least one uppercase letter.',
     },
     {
       test: /\d/,
-      message: "Password must include at least one number.",
+      message: 'Password must include at least one number.',
     },
     {
       test: /.{6,}/,
-      message: "Password must be at least 6 characters long.",
+      message: 'Password must be at least 6 characters long.',
     },
   ];
 
@@ -168,29 +170,29 @@ function validatePassword() {
 
   if (failedCondition) {
     passwordError.textContent = failedCondition.message;
-    passwordError.style.display = "block";
+    passwordError.style.display = 'block';
   } else {
-    passwordError.textContent = "";
-    passwordError.style.display = "none";
+    passwordError.textContent = '';
+    passwordError.style.display = 'none';
   }
 }
 
 function validateConfirmPassword() {
-  const confirmPassword = document.getElementById("confirmPassword").value;
-  const password = document.getElementById("password").value;
-  const confirmPasswordError = document.getElementById("confirmPasswordError");
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  const password = document.getElementById('password').value;
+  const confirmPasswordError = document.getElementById('confirmPasswordError');
 
   if (confirmPassword !== password) {
-    confirmPasswordError.textContent = "Passwords do not match";
-    confirmPasswordError.style.display = "block";
+    confirmPasswordError.textContent = 'Passwords do not match';
+    confirmPasswordError.style.display = 'block';
   } else {
-    confirmPasswordError.textContent = "";
-    confirmPasswordError.style.display = "none";
+    confirmPasswordError.textContent = '';
+    confirmPasswordError.style.display = 'none';
   }
 }
 
 function isNotEmpty(value) {
-  const result = value.trim() !== "";
+  const result = value.trim() !== '';
   return result;
 }
 
@@ -214,7 +216,7 @@ function handleServerError(errors) {
     const errorElement = document.getElementById(`${field}Error`);
     if (errorElement) {
       errorElement.textContent = errors[field];
-      errorElement.style.display = "block";
+      errorElement.style.display = 'block';
     }
   }
 }

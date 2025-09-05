@@ -1,11 +1,12 @@
 function fetchAddresses() {
-  const addressListContainer = document.getElementById("addressList");
+  const addressListContainer = document.getElementById('addressList');
 
   if (!addressListContainer) {
     return;
   }
 
-  axios.get("/my-account/add-address")
+  axios
+    .get('/my-account/add-address')
     .then((response) => {
       const addresses = response.data.addresses?.address;
       if (addresses && addresses.length > 0) {
@@ -42,13 +43,14 @@ function fetchAddresses() {
               </div>
             `
           )
-          .join("");
+          .join('');
       } else {
-        addressListContainer.innerHTML = "<p>No addresses available. Please add a new address.</p>";
+        addressListContainer.innerHTML =
+          '<p>No addresses available. Please add a new address.</p>';
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
+      console.error('Error:', error);
       showError(`An error occurred while fetching addresses: ${error.message}`);
     });
 }
@@ -57,7 +59,7 @@ const API_ENDPOINTS = {
   CREATE_ORDER: '/create-order',
   CONFIRM_COD_ORDER: '/confirm-cod-order',
   VERIFY_PAYMENT: '/verify-payment',
-  USE_FUNDS: '/use-funds'
+  USE_FUNDS: '/use-funds',
 };
 
 const ERROR_MESSAGES = {
@@ -66,24 +68,24 @@ const ERROR_MESSAGES = {
   ORDER_CREATION_FAILED: 'Failed to create order.',
   COD_CONFIRMATION_FAILED: 'Failed to confirm COD order.',
   PAYMENT_VERIFICATION_FAILED: 'Payment verification failed.',
-  INSUFFICIENT_BALANCE: 'Insufficient wallet balance. Choose another payment method.',
+  INSUFFICIENT_BALANCE:
+    'Insufficient wallet balance. Choose another payment method.',
   GENERAL_ERROR: 'An error occurred. Please try again.',
-  RAZORPAY_UNDEFINED: 'Payment gateway is not available. Please try again later.',
-  COD_NOT_AVAILABLE: 'COD is not available for orders above Rs 1000.'
+  RAZORPAY_UNDEFINED:
+    'Payment gateway is not available. Please try again later.',
+  COD_NOT_AVAILABLE: 'COD is not available for orders above Rs 1000.',
 };
 
-
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   fetchAddresses();
   initializeAddAddress();
 
   const addAddressModal = document.getElementById('addAddressModal');
   addAddressModal.addEventListener('hidden.bs.modal', clearErrorMessages);
 
-  const placeOrderButton = document.getElementById("placeOrder");
-  placeOrderButton.addEventListener("click", handlePlaceOrder);
+  const placeOrderButton = document.getElementById('placeOrder');
+  placeOrderButton.addEventListener('click', handlePlaceOrder);
 });
-
 
 async function handlePlaceOrder() {
   try {
@@ -94,7 +96,7 @@ async function handlePlaceOrder() {
     const response = await createOrder(orderData);
 
     if (response.data.success) {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       await handlePaymentMethod(response.data);
     } else {
       showError(response.data.message || ERROR_MESSAGES.ORDER_CREATION_FAILED);
@@ -108,9 +110,14 @@ async function handlePlaceOrder() {
 
 function validateOrderData() {
   const selectedAddressId = getSelectedAddressId();
-  const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-  const couponCode = document.getElementById("appliedCouponCode")?.value?.trim() || "";
-  const total = parseFloat(document.querySelector('.order_total strong').textContent.replace('₹', ''));
+  const paymentMethod = document.querySelector(
+    'input[name="paymentMethod"]:checked'
+  )?.value;
+  const couponCode =
+    document.getElementById('appliedCouponCode')?.value?.trim() || '';
+  const total = parseFloat(
+    document.querySelector('.order_total strong').textContent.replace('₹', '')
+  );
 
   let errorMessage = '';
 
@@ -135,13 +142,15 @@ function validateOrderData() {
 }
 
 async function createOrder(orderData) {
-  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const csrfToken = document
+    .querySelector('meta[name="csrf-token"]')
+    .getAttribute('content');
   return await axios.post(API_ENDPOINTS.CREATE_ORDER, orderData, {
     headers: {
       'X-CSRF-Token': csrfToken,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    withCredentials: true
+    withCredentials: true,
   });
 }
 
@@ -164,12 +173,18 @@ async function handlePaymentMethod(responseData) {
 
 async function handleCODOrder(orderId) {
   try {
-    const response = await axios.post(`${API_ENDPOINTS.CONFIRM_COD_ORDER}/${orderId}`);
+    const response = await axios.post(
+      `${API_ENDPOINTS.CONFIRM_COD_ORDER}/${orderId}`
+    );
     if (response.data.success) {
-      showSuccess("Order placed successfully! You'll pay at the time of delivery.");
+      showSuccess(
+        "Order placed successfully! You'll pay at the time of delivery."
+      );
       redirectToOrderConfirmation(orderId);
     } else {
-      showError(response.data.message || ERROR_MESSAGES.COD_CONFIRMATION_FAILED);
+      showError(
+        response.data.message || ERROR_MESSAGES.COD_CONFIRMATION_FAILED
+      );
     }
   } catch (error) {
     handleError(error);
@@ -177,7 +192,9 @@ async function handleCODOrder(orderId) {
 }
 
 function handleRazorpayOrder(razorpayOrderId, orderId, amount) {
-  const razorpayKey = document.querySelector('script[data-razorpay-key]').getAttribute('data-razorpay-key');
+  const razorpayKey = document
+    .querySelector('script[data-razorpay-key]')
+    .getAttribute('data-razorpay-key');
 
   if (typeof Razorpay === 'undefined') {
     console.error(ERROR_MESSAGES.RAZORPAY_UNDEFINED);
@@ -189,20 +206,20 @@ function handleRazorpayOrder(razorpayOrderId, orderId, amount) {
   const options = {
     key: razorpayKey,
     amount: amount * 100,
-    currency: "INR",
-    name: "Laptop Store",
-    description: "Order Payment",
+    currency: 'INR',
+    name: 'Laptop Store',
+    description: 'Order Payment',
     order_id: razorpayOrderId,
     handler: (response) => {
       verifyPayment(response, orderId);
     },
     modal: {
-      ondismiss: function() {
+      ondismiss: function () {
         redirectToOrderConfirmation(orderId);
-      }
+      },
     },
-    theme: { color: "#3399cc" }
-  }
+    theme: { color: '#3399cc' },
+  };
 
   try {
     const rzp = new Razorpay(options);
@@ -214,32 +231,38 @@ function handleRazorpayOrder(razorpayOrderId, orderId, amount) {
   }
 }
 
-
 async function verifyPayment(paymentResponse, orderId) {
   try {
-    const response = await axios.post(`${API_ENDPOINTS.VERIFY_PAYMENT}/${orderId}`, paymentResponse);
-       
+    const response = await axios.post(
+      `${API_ENDPOINTS.VERIFY_PAYMENT}/${orderId}`,
+      paymentResponse
+    );
+
     if (response.data.success) {
-      showSuccess("Payment successful! Order placed.");
+      showSuccess('Payment successful! Order placed.');
     } else {
-      showError(response.data.message || "Payment failed. Order status: Pending");
+      showError(
+        response.data.message || 'Payment failed. Order status: Pending'
+      );
     }
   } catch (error) {
     console.error('Error verifying payment:', error);
-    showError("Payment verification failed. Order status: Pending");
+    showError('Payment verification failed. Order status: Pending');
   } finally {
     setTimeout(() => redirectToOrderConfirmation(orderId), 3000);
   }
 }
 
-
 async function handleWalletOrder(orderId, amount) {
   try {
-    const response = await axios.post(API_ENDPOINTS.USE_FUNDS, { amount, orderId });
+    const response = await axios.post(API_ENDPOINTS.USE_FUNDS, {
+      amount,
+      orderId,
+    });
     if (response.data.success) {
       showSuccess('Order placed successfully using wallet balance');
       redirectToOrderConfirmation(orderId);
-    } 
+    }
   } catch (error) {
     console.error('Error handling wallet order:', error);
     if (error.response && error.response.status === 400) {
@@ -251,13 +274,12 @@ async function handleWalletOrder(orderId, amount) {
   }
 }
 
-
 function showError(message) {
   Swal.fire({
-    icon: "error",
+    icon: 'error',
     text: message,
     toast: true,
-    position: "top-right",
+    position: 'top-right',
     showConfirmButton: false,
     timerProgressBar: true,
     timer: 3000,
@@ -266,14 +288,14 @@ function showError(message) {
 
 function showSuccess(message) {
   Swal.fire({
-    icon: "success",
+    icon: 'success',
     text: message,
     toast: true,
-    position: "top-right",
+    position: 'top-right',
     showConfirmButton: false,
     timerProgressBar: true,
     timer: 3000,
-  })
+  });
 }
 
 function handleError(error) {
@@ -288,18 +310,20 @@ function showLoading(message) {
     timer: 3000,
     willOpen: () => {
       Swal.showLoading();
-    }
+    },
   });
-} 
+}
 
 function clearErrorMessages() {
   const errorDivs = document.querySelectorAll('.error-message');
-  errorDivs.forEach(div => div.textContent = '');
+  errorDivs.forEach((div) => (div.textContent = ''));
 }
 
 function getSelectedAddressId() {
-  const selectedRadio = document.querySelector('input[name="addressSelection"]:checked');
-  return selectedRadio ? selectedRadio.getAttribute("data-address-id") : null;
+  const selectedRadio = document.querySelector(
+    'input[name="addressSelection"]:checked'
+  );
+  return selectedRadio ? selectedRadio.getAttribute('data-address-id') : null;
 }
 
 function redirectToOrderConfirmation(orderId) {
@@ -316,7 +340,7 @@ function initializeAddAddress() {
 
 async function handleAddAddress(e) {
   e.preventDefault();
-  
+
   if (validateAllInputs()) {
     const submitButton = e.target.querySelector('button[type="submit"]');
     submitButton.disabled = true;
@@ -324,7 +348,7 @@ async function handleAddAddress(e) {
 
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
-    
+
     try {
       const response = await axios.post('/my-account/add-address', data);
       if (response.data.success) {
@@ -353,11 +377,12 @@ function removeAddress(addressId) {
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
+    confirmButtonText: 'Yes, delete it!',
   }).then((result) => {
     if (result.isConfirmed) {
-      axios.delete(`/my-account/delete-address/${addressId}`)
-        .then(response => {
+      axios
+        .delete(`/my-account/delete-address/${addressId}`)
+        .then((response) => {
           if (response.data.success) {
             Swal.fire('Deleted!', 'Your address has been deleted.', 'success');
             fetchAddresses();
@@ -365,7 +390,7 @@ function removeAddress(addressId) {
             showError('Failed to delete address');
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('Error:', error);
           showError('An error occurred while deleting the address');
         });
@@ -373,38 +398,52 @@ function removeAddress(addressId) {
   });
 }
 
-function editAddress(id, addressType, name, mobile, city, state, pinCode, landMark) {
-  const editAddressForm = document.getElementById("editAddressForm");
+function editAddress(
+  id,
+  addressType,
+  name,
+  mobile,
+  city,
+  state,
+  pinCode,
+  landMark
+) {
+  const editAddressForm = document.getElementById('editAddressForm');
 
-  document.getElementById("editAddressId").value = id;
-  document.getElementById("editAddressName").value = name;
-  document.getElementById("editAddressType").value = addressType;
-  document.getElementById("editCity").value = city;
-  document.getElementById("editLandMark").value = landMark;
-  document.getElementById("editState").value = state;
-  document.getElementById("editPinCode").value = pinCode;
-  document.getElementById("editMobile").value = mobile;
+  document.getElementById('editAddressId').value = id;
+  document.getElementById('editAddressName').value = name;
+  document.getElementById('editAddressType').value = addressType;
+  document.getElementById('editCity').value = city;
+  document.getElementById('editLandMark').value = landMark;
+  document.getElementById('editState').value = state;
+  document.getElementById('editPinCode').value = pinCode;
+  document.getElementById('editMobile').value = mobile;
 
   clearErrorMessages();
 
   $('#editAddressModal').modal('show');
 }
 
-document.getElementById("editAddressForm").addEventListener("submit", handleEditAddress);
+document
+  .getElementById('editAddressForm')
+  .addEventListener('submit', handleEditAddress);
 
 async function handleEditAddress(e) {
   e.preventDefault();
-    
+
   if (!validateEditAddressForm()) {
     return;
   }
 
   const formData = new FormData(e.target);
   const data = Object.fromEntries(formData);
-  
+
   try {
-    const response = await axios.post(`/my-account/edit-address/${data.addressId}`, data);
-    
+    const response = await axios.post(
+      `/my-account/edit-address/${data.addressId}`,
+      data
+    );
+
     if (response.data.success) {
       showSuccess(response.data.message);
       fetchAddresses();
@@ -418,68 +457,60 @@ async function handleEditAddress(e) {
   }
 }
 
-
 function validateEditAddressForm() {
   let isValid = true;
 
   // Validate Name
-  const name = document.getElementById("editAddressName").value.trim();
+  const name = document.getElementById('editAddressName').value.trim();
   if (name === '') {
-    showError("editAddressName", "Please enter a name");
+    showError('editAddressName', 'Please enter a name');
     isValid = false;
   } else {
-    clearError("editAddressName");
+    clearError('editAddressName');
   }
 
   // Validate Mobile
-  const mobile = document.getElementById("editMobile").value.trim();
+  const mobile = document.getElementById('editMobile').value.trim();
   if (mobile === '') {
-    showError("editMobile", "Please enter a mobile number");
+    showError('editMobile', 'Please enter a mobile number');
     isValid = false;
   } else if (!/^\d{10}$/.test(mobile)) {
-    showError("editMobile", "Please enter a valid 10-digit mobile number");
+    showError('editMobile', 'Please enter a valid 10-digit mobile number');
     isValid = false;
   } else {
-    clearError("editMobile");
+    clearError('editMobile');
   }
 
   // Validate Landmark
-  const landMark = document.getElementById("editLandMark").value.trim();
+  const landMark = document.getElementById('editLandMark').value.trim();
   if (landMark === '') {
-    showError("editLandMark", "Please enter a landmark");
+    showError('editLandMark', 'Please enter a landmark');
     isValid = false;
   } else {
-    clearError("editLandMark");
+    clearError('editLandMark');
   }
 
   // Validate State
-  const state = document.getElementById("editState").value.trim();
+  const state = document.getElementById('editState').value.trim();
   if (state === '') {
-    showError("editState", "Please enter a state");
+    showError('editState', 'Please enter a state');
     isValid = false;
   } else {
-    clearError("editState");
+    clearError('editState');
   }
 
   // Validate Pin Code
-  const pinCode = document.getElementById("editPinCode").value.trim();
+  const pinCode = document.getElementById('editPinCode').value.trim();
   if (pinCode === '') {
-    showError("editPinCode", "Please enter a pin code");
+    showError('editPinCode', 'Please enter a pin code');
     isValid = false;
   } else if (!/^\d{6}$/.test(pinCode)) {
-    showError("editPinCode", "Please enter a valid 6-digit pin code");
+    showError('editPinCode', 'Please enter a valid 6-digit pin code');
     isValid = false;
   } else {
-    clearError("editPinCode");
+    clearError('editPinCode');
   }
   return isValid;
-}
-
-function showError(fieldId, message) {
-  const errorElement = document.getElementById(`${fieldId}Error`);
-  if (errorElement) {
-    errorElement.textContent = message;
-  }
 }
 
 function clearError(fieldId) {
@@ -489,23 +520,40 @@ function clearError(fieldId) {
   }
 }
 
-function clearErrorMessages() {
-  const errorElements = document.querySelectorAll('[id$="Error"]');
-  errorElements.forEach(element => {
-    element.textContent = '';
-  });
-}
-
 function validateAllInputs() {
   const isNameValid = validateNameInput('addressName', 'addressNameError');
-  const isAddressTypeValid = validateAddressInput('addressType', 'addressTypeError', 'Please enter an address type');
-  const isCityValid = validateAddressInput('city', 'cityError', 'Please enter a city');
-  const isLandMarkValid = validateAddressInput('landMark', 'landMarkError', 'Please enter a landmark');
-  const isStateValid = validateAddressInput('state', 'stateError', 'Please enter a state');
+  const isAddressTypeValid = validateAddressInput(
+    'addressType',
+    'addressTypeError',
+    'Please enter an address type'
+  );
+  const isCityValid = validateAddressInput(
+    'city',
+    'cityError',
+    'Please enter a city'
+  );
+  const isLandMarkValid = validateAddressInput(
+    'landMark',
+    'landMarkError',
+    'Please enter a landmark'
+  );
+  const isStateValid = validateAddressInput(
+    'state',
+    'stateError',
+    'Please enter a state'
+  );
   const isPinCodeValid = validatePinCodeInput('pinCode', 'pinCodeError');
   const isMobileValid = validateMobileInput('mobile', 'mobileError');
 
-  return isNameValid && isAddressTypeValid && isCityValid && isLandMarkValid && isStateValid && isPinCodeValid && isMobileValid;
+  return (
+    isNameValid &&
+    isAddressTypeValid &&
+    isCityValid &&
+    isLandMarkValid &&
+    isStateValid &&
+    isPinCodeValid &&
+    isMobileValid
+  );
 }
 
 function validateAddressInput(inputId, errorDivId, errorMessage) {

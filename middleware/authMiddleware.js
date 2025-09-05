@@ -1,5 +1,5 @@
 const addUserToLocals = (req, res, next) => {
-  res.locals.userLoggedIn = req.session.user ? true : false;
+  res.locals.userLoggedIn = !!req.session.user;
   next();
 };
 

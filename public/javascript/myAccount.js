@@ -153,6 +153,8 @@ function cancelOrder(orderId) {
 function returnOrder(orderId) {
   if (confirm('Are you sure you want to return this order?')) {
     axios.put(`/my-account/return-order/${orderId}`)
+  }
+}
 
 function returnProduct(orderId, productId) {
   const orderDetailsModal = bootstrap.Modal.getInstance(document.getElementById('orderDetailsModal'));

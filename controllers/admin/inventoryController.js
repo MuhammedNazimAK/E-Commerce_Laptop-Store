@@ -1,7 +1,6 @@
 const Product = require('../../models/productModel');
 const StatusCodes = require('../../public/javascript/statusCodes');
 
-
 const getInventoryPage = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -12,7 +11,9 @@ const getInventoryPage = async (req, res) => {
     const totalPages = Math.ceil(totalProducts / limit);
 
     const products = await Product.find()
-      .select('basicInformation.name inventory pricingAndAvailability.stockAvailability')
+      .select(
+        'basicInformation.name inventory pricingAndAvailability.stockAvailability'
+      )
       .skip(skip)
       .limit(limit);
 
@@ -21,16 +22,22 @@ const getInventoryPage = async (req, res) => {
         products,
         currentPage: page,
         totalPages,
-        totalProducts
+        totalProducts,
       });
     }
 
-    res.render('admin/inventoryManagement', { products, currentPage: page, totalPages, totalProducts });
+    res.render('admin/inventoryManagement', {
+      products,
+      currentPage: page,
+      totalPages,
+      totalProducts,
+    });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error fetching inventory data', error });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error fetching inventory data', error });
   }
 };
-
 
 const updateInventory = async (req, res) => {
   try {
@@ -45,24 +52,31 @@ const updateInventory = async (req, res) => {
           'inventory.lowStockThreshold': lowStockThreshold,
           'inventory.supplierInfo': supplierInfo,
           'inventory.lastRestocked': new Date(),
-          'pricingAndAvailability.stockAvailability': stockAvailability,
         },
       },
       { new: true }
     );
 
     if (!updatedProduct) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: 'Product not found' });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Product not found' });
     }
 
-    res.status(StatusCodes.OK).json({ message: 'Inventory updated successfully', product: updatedProduct });
+    res
+      .status(StatusCodes.OK)
+      .json({
+        message: 'Inventory updated successfully',
+        product: updatedProduct,
+      });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error updating inventory', error });
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error updating inventory', error });
   }
 };
 
-
-module.exports = {  
+module.exports = {
   getInventoryPage,
   updateInventory,
 };

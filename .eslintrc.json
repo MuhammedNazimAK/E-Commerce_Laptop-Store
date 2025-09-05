@@ -1,0 +1,20 @@
+{
+    "extends": [
+        "standard",
+        "prettier"
+    ],
+    "globals": {
+        "axios": "readonly",
+        "Swal": "readonly",
+        "$": "readonly",
+        "bootstrap": "readonly",
+        "Cropper": "readonly",
+        "noUiSlider": "readonly",
+        "FileReader": "readonly",
+        "DataTransfer": "readonly",
+        "swal": "readonly",
+        "define": "readonly",
+        "jQuery": "readonly",
+        "Razorpay": "readonly"
+    }
+}

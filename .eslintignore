@@ -1,0 +1,21 @@
+# Ignore the entire node_modules directory
+node_modules/
+
+# Ignore all third-party vendor libraries for the main site
+public/assets/js/vendor/
+public/assets/js/plugins/
+
+# Ignore all third-party vendor libraries for the admin panel
+public/admin_assets/js/vendors/
+
+# Ignore all CSS files, as ESLint is for JavaScript
+public/assets/css/
+public/admin_assets/css/
+
+# It's also good practice to ignore Sass files
+public/admin_assets/sass/
+
+
+public/admin_assets/js/main.js
+public/assets/js/main.js
+public/admin_assets/js/custom-chart.js

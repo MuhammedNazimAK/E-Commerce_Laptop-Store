@@ -7,7 +7,7 @@ async function applyReferralReward(newUser, referrerId) {
     const currentOffer = await ReferralOffer.findOne({
       isActive: true,
       startDate: { $lte: new Date() },
-      endDate: { $gte: new Date() }
+      endDate: { $gte: new Date() },
     });
 
     if (!currentOffer) {
@@ -15,20 +15,28 @@ async function applyReferralReward(newUser, referrerId) {
     }
 
     // Reward for the referrer
-    await creditWallet(referrerId, currentOffer.refereeAmount, 'Referral reward');
+    await creditWallet(
+      referrerId,
+      currentOffer.refereeAmount,
+      'Referral reward'
+    );
 
     // Reward for the new user
-    await creditWallet(newUser._id, currentOffer.refereeAmount, 'Welcome bonus for using referral');
+    await creditWallet(
+      newUser._id,
+      currentOffer.refereeAmount,
+      'Welcome bonus for using referral'
+    );
 
     // Update referral relationship
-    await User.findByIdAndUpdate(referrerId, { $push: { referrals: newUser._id } });
+    await User.findByIdAndUpdate(referrerId, {
+      $push: { referrals: newUser._id },
+    });
     await User.findByIdAndUpdate(newUser._id, { referredBy: referrerId });
-
   } catch (error) {
     console.error('Error applying referral reward:', error);
   }
 }
-
 
 async function creditWallet(userId, amount, description) {
   try {

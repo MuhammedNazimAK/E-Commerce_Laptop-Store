@@ -1,6 +1,5 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
-
 
 const { Schema } = mongoose;
 
@@ -45,7 +44,7 @@ const userSchema = new Schema({
   cart: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Cart",
+      ref: 'Cart',
     },
   ],
   wallet: {
@@ -53,11 +52,11 @@ const userSchema = new Schema({
   },
   wishList: {
     type: Schema.Types.ObjectId,
-    ref: "Wishlist",
+    ref: 'Wishlist',
   },
   orderHistory: {
     type: Schema.Types.ObjectId,
-    ref: "Order",
+    ref: 'Order',
   },
   createOn: {
     type: Date,
@@ -66,25 +65,29 @@ const userSchema = new Schema({
   referralCode: {
     type: String,
     unique: true,
-    default: () => uuidv4().substring(0, 8).toUpperCase()
+    default: () => uuidv4().substring(0, 8).toUpperCase(),
   },
   referredBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
-  referrals: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  usedCoupons: [{
-    type: String,
-    ref: 'Coupon'
-  }],
+  referrals: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
+  usedCoupons: [
+    {
+      type: String,
+      ref: 'Coupon',
+    },
+  ],
   searchHistory: [
     {
       category: {
         type: Schema.Types.ObjectId,
-        ref: "Category",
+        ref: 'Category',
       },
       brand: {
         type: String,
@@ -104,7 +107,7 @@ const userSchema = new Schema({
   },
 });
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (this.isNew && !this.referralCode) {
     this.referralCode = await generateUniqueReferralCode(this.constructor);
   }
@@ -124,5 +127,4 @@ async function generateUniqueReferralCode(model) {
   return code;
 }
 
-module.exports = mongoose.model("User", userSchema);
-
+module.exports = mongoose.model('User', userSchema);

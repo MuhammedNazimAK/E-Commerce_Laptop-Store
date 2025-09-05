@@ -13,7 +13,7 @@ async function incrementProductView(productId, userId) {
     try {
       await Product.findByIdAndUpdate(productId, {
         $inc: { 'views.count': 1 },
-        $set: { 'views.lastViewedAt': new Date() }
+        $set: { 'views.lastViewedAt': new Date() },
       });
     } catch (error) {
       console.error('Error incrementing product view:', error);

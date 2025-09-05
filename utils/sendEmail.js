@@ -3,7 +3,7 @@ const { NODEMAILER_EMAIL, NODEMAILER_PASSWORD } = process.env;
 
 const sendEmail = async (to, subject, text, html) => {
   const transporter = nodeMailer.createTransport({
-    service: "gmail",
+    service: 'gmail',
     port: 587,
     secure: false,
     requireTLS: true,
@@ -14,11 +14,11 @@ const sendEmail = async (to, subject, text, html) => {
   });
 
   const mailOptions = {
-    from : NODEMAILER_EMAIL,
-    to : to,
-    subject : subject,
-    text : text,
-    html : html,
+    from: NODEMAILER_EMAIL,
+    to,
+    subject,
+    text,
+    html,
   };
 
   await transporter.sendMail(mailOptions);
