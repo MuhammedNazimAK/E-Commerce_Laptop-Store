@@ -6,46 +6,17 @@ require('dotenv').config();
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-
-const uploadVideos = async (videos) => {
-  if (!videos || videos.length === 0) {
-    throw new Error('No valid videos provided for upload');
-  }
-
-  const uploadPromises = videos.map(async (video) => {
-    if (!video || !video.path || !fs.existsSync(video.path)) {
-      console.error('Invalid video:', video);
-      return null;
-    }
-
-    try {
-      const result = await cloudinary.uploader.upload(video.path, { resource_type: 'video' });
-      return result.secure_url;
-    } catch (error) {
-      console.error('Error during video upload:', error);
-      return null;
-    }
-  });
-
-  const results = await Promise.allSettled(uploadPromises);
-  const fulfilledResults = results.filter((result) => result.value !== null);
-  const successfulUploads = fulfilledResults.map((result) => result.value);
-
-  if (successfulUploads.length === 0) {
-    throw new Error('No videos were uploaded successfully');
-  }
-
-  return successfulUploads;
-};
-
 
 const uploadImages = async (images) => {
   try {
   if (!images || images.length === 0) {
     throw new Error('No valid images provided for upload');
+  }
+
+  if (images.length > 5) {
+    throw new Error('Maximum 5 images allowed');
   }
 
   const uploadPromises = images.map(async (image) => {
@@ -56,11 +27,14 @@ const uploadImages = async (images) => {
 
     try {
       const result = await cloudinary.uploader.upload(image.tempFilePath, {
-         resource_type: 'auto',
-         quality: 'auto:best',
+         folder: 'products',
+         resource_type: 'image',
+         quality: 'auto',
          fetch_format: 'auto',
-         flags: 'preserve_transparency',
         });
+
+        fs.unlinkSync(image.tempFilePath);
+
       return result.secure_url;
     } catch (error) {
       console.error('Error during image upload:', image.name, error, error.stack);
@@ -83,4 +57,4 @@ const uploadImages = async (images) => {
 };
 
 
-module.exports = { uploadImages, uploadVideos, cloudinary };
+module.exports = { uploadImages, cloudinary };

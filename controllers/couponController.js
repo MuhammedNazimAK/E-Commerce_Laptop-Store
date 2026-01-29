@@ -46,12 +46,12 @@ async function getProductWithOffers(productId) {
       current.discountPercentage > best.discountPercentage ? current : best
     , { discountPercentage: 0, offerName: '' });
 
-    discountedPrice = product.pricingAndAvailability.regularPrice * (1 - bestOffer.discountPercentage / 100);
+    discountedPrice = product.price * (1 - bestOffer.discountPercentage / 100);
   }
 
   return {
     ...product.toObject(),
-    originalPrice: product.pricingAndAvailability.regularPrice,
+    originalPrice: product.price,
     discountedPrice: discountedPrice,
     discount: bestOffer.discountPercentage,
     offerName: bestOffer.offerName

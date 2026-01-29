@@ -1,10 +1,10 @@
-const bcrypt = require('bcrypt');
 const Admin = require('../../models/adminModel');
 const User = require('../../models/userModel');
 
 const Order = require('../../models/orderModel');
 const Product = require('../../models/productModel');
 const Category = require('../../models/categoryModel');
+const bcrypt = require('bcrypt');
 const StatusCodes = require('../../public/javascript/statusCodes');
 
 
@@ -83,9 +83,9 @@ const loadCustomersListPage = async (req, res) => {
 const loadCustomersList = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
         const search = req.query.search || '';
         const status = req.query.status || '';
+        const limit = parseInt(req.query.limit) || 20;
 
         const query = {};
         if (search) {
@@ -105,7 +105,7 @@ const loadCustomersList = async (req, res) => {
         const userData = await User.find(query)
             .skip((page - 1) * limit)
             .limit(limit)
-            .select('firstName lastName email mobile isBlocked createdAt')
+            .select('firstName lastName email mobile createOn isBlocked')
             .lean();
 
         res.json({

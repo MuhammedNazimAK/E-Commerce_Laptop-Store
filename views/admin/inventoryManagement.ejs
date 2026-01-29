@@ -23,7 +23,7 @@
           <tbody>
             <% products.forEach(product => { %>
               <tr class="<%= product.pricingAndAvailability.stockAvailability <= product.inventory.lowStockThreshold ? 'table-warning' : '' %>">
-                <td><%= product.basicInformation.name %></td>
+                <td><%= product.name %></td>
                 <td>
                   <span class="stock-value <%= product.pricingAndAvailability.stockAvailability <= product.inventory.lowStockThreshold ? 'text-danger' : '' %>">
                     <%= product.pricingAndAvailability.stockAvailability %>
@@ -38,8 +38,8 @@
                   <input type="number" class="form-control threshold-input d-none" value="<%= product.inventory.lowStockThreshold %>">
                 </td>
                 <td>
-                  <span class="supplier-value"><%= product.basicInformation.brand || 'N/A' %></span>
-                  <input type="text" class="form-control supplier-input d-none" value="<%= product.basicInformation.brand || 'N/A' %>">
+                  <span class="supplier-value"><%= product.brand || 'N/A' %></span>
+                  <input type="text" class="form-control supplier-input d-none" value="<%= product.brand || 'N/A' %>">
                 </td>
                 <td>
                   <button class="btn btn-sm btn-outline-primary edit-btn">Edit</button>
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const tr = document.createElement('tr');
       tr.className = product.pricingAndAvailability.stockAvailability <= product.inventory.lowStockThreshold ? 'table-warning' : '';
       tr.innerHTML = `
-        <td>${product.basicInformation.name}</td>
+        <td>${product.name}</td>
         <td>
           <span class="stock-value ${product.pricingAndAvailability.stockAvailability <= product.inventory.lowStockThreshold ? 'text-danger' : ''}">
             ${product.pricingAndAvailability.stockAvailability}
@@ -100,8 +100,8 @@ document.addEventListener('DOMContentLoaded', function() {
           <input type="number" class="form-control threshold-input d-none" value="${product.inventory.lowStockThreshold}">
         </td>
         <td>
-          <span class="supplier-value">${product.basicInformation.brand || 'N/A'}</span>
-          <input type="text" class="form-control supplier-input d-none" value="${product.basicInformation.brand || 'N/A'}">
+          <span class="supplier-value">${product.brand || 'N/A'}</span>
+          <input type="text" class="form-control supplier-input d-none" value="${product.brand || 'N/A'}">
         </td>
         <td>
           <button class="btn btn-sm btn-outline-primary edit-btn">Edit</button>

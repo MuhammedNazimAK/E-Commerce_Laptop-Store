@@ -54,12 +54,12 @@ async function getProductWithOffers(productId) {
       current.discountPercentage > best.discountPercentage ? current : best
     , { discountPercentage: 0, offerName: '' });
 
-    discountedPrice = product.pricingAndAvailability.regularPrice * (1 - bestOffer.discountPercentage / 100);
+    discountedPrice = product.price * (1 - bestOffer.discountPercentage / 100);
   }
 
   return {
     ...product.toObject(),
-    originalPrice: product.pricingAndAvailability.regularPrice,
+    originalPrice: product.price,
     discountedPrice: discountedPrice,
     discount: bestOffer.discountPercentage,
     offerName: bestOffer.offerName
@@ -463,7 +463,7 @@ const getRetryCheckoutPage = async (req, res) => {
   try {
       const order = await Order.findById(req.params.orderId)
           .populate('userId', 'firstName lastName email mobile')
-          .populate('products.product', 'basicInformation');
+          .populate('products.product', 'name brand description');
 
       if (!order) {
           return res.status(StatusCodes.NOT_FOUND).send('Order not found');
@@ -482,7 +482,7 @@ const showOrderConfirmation = async (req, res) => {
 
     const order = await Order.findOne({ orderId: req.params.orderId })
       .populate('userId')
-      .populate({ path: 'products.product', select: 'basicInformation.name pricingAndAvailability' }).lean();
+      .populate({ path: 'products.product', select: 'name price salePrice' }).lean();
 
       if (order) {
         const address = await Address.findOne(
@@ -513,9 +513,9 @@ const showOrderConfirmation = async (req, res) => {
       shippingAddress: order.shippingAddress,    
       coupon: order.couponCode,
       products: order.products.map(item => ({
-        name: item.product.basicInformation.name,
+        name: item.product.name,
         quantity: item.quantity,
-        originalPrice: item.product.pricingAndAvailability.regularPrice,
+        originalPrice: item.product.price,
         discountedPrice: item.price
       })),
       user: {
@@ -596,7 +596,7 @@ const getOrderDetails = async (req, res) => {
       .populate('userId', 'firstName lastName email mobile')
       .populate({
         path: 'products.product',
-        select: 'basicInformation.name'
+        select: 'name'
       })
       .lean();
 

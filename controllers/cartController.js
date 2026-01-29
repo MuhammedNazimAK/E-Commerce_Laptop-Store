@@ -42,19 +42,19 @@ async function getProductWithOffers(productId) {
   const allOffers = [...productOffers, ...categoryOffers, ...defaultOffers];
 
   let bestOffer = { discountPercentage: 0, offerName: '' };
-  let discountedPrice = product.pricingAndAvailability.salesPrice;
+  let discountedPrice = product.salePrice;
 
   if (allOffers.length > 0) {
     bestOffer = allOffers.reduce((best, current) =>
       current.discountPercentage > best.discountPercentage ? current : best
     , { discountPercentage: 0, offerName: '' });
 
-    discountedPrice = product.pricingAndAvailability.regularPrice * (1 - bestOffer.discountPercentage / 100);
+    discountedPrice = product.price * (1 - bestOffer.discountPercentage / 100);
   }
 
   return {
     ...product.toObject(),
-    originalPrice: product.pricingAndAvailability.regularPrice,
+    originalPrice: product.price,
     discountedPrice: discountedPrice,
     discount: bestOffer.discountPercentage,
     offerName: bestOffer.offerName
@@ -83,7 +83,7 @@ const addToCart = async (req, res) => {
     }
 
     // Check if there's enough stock
-    if (!product.pricingAndAvailability || typeof product.pricingAndAvailability.stockAvailability !== 'number' || product.pricingAndAvailability.stockAvailability < quantity) {
+    if (typeof product.stock !== 'number' || product.stock < quantity) {
       return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Not enough stock available' });
     }
 
@@ -122,20 +122,16 @@ const addToCart = async (req, res) => {
     await cart.populate('items.product');
 
     const totalPrice = cart.items.reduce((total, item) => {
-      return total + (item.product.pricingAndAvailability.salesPrice || item.product.pricingAndAvailability.regularPrice) * item.quantity;
+      return total + (item.product.salePrice || item.product.price) * item.quantity;
     }, 0);  
 
     return res.json({
       success: true,
       product: {
         id: product.id,
-        name: product.basicInformation.name,
-        images: {
-          highResolutionPhotos: product.images.highResolutionPhotos[0]
-        },
-        pricingAndAvailability: {
-          salesPrice: product.pricingAndAvailability.salesPrice
-        }
+        name: product.name,
+        images: product.images[0],
+        salesPrice: product.salePrice
       },
       cartItemCount: cart.items.length,
       totalPrice: totalPrice,
@@ -316,8 +312,8 @@ const checkout = async (req, res) => {
         return isNaN(parsedPrice) ? 0 : parsedPrice;
       };
       
-      const price = getValidPrice(productWithOffers.discountedPrice || productWithOffers.regularPrice);
-      const originalPrice = getValidPrice(productWithOffers.regularPrice);
+      const price = getValidPrice(productWithOffers.discountedPrice || productWithOffers.price);
+      const originalPrice = getValidPrice(productWithOffers.price);
       const total = price * item.quantity;
       
       // Calculate savings for this item

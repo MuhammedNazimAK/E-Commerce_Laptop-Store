@@ -71,15 +71,15 @@
                                     </td>
                                     <td class="product_thumb">
                                       <a href="/productDetails/<%= item._id %>">
-                                        <% if (item.images && item.images.highResolutionPhotos && item.images.highResolutionPhotos.length > 0) { %>
-                                          <img src="<%= item.images.highResolutionPhotos[0] %>" alt="<%= item.basicInformation.name %>">
+                                        <% if (item.images && item.images && item.images.length > 0) { %>
+                                          <img src="<%= item.images[0] %>" alt="<%= item.name %>">
                                         <% } else { %>
                                           <img src="/images/default-product.jpg" alt="Default Product Image">
                                         <% } %>
                                       </a>
                                     </td>
                                     <td class="product_name">
-                                      <a href="/productDetails/<%= item._id %>"><%= item.basicInformation.name %></a>
+                                      <a href="/productDetails/<%= item._id %>"><%= item.name %></a>
                                     </td>
                                     <td class="product-price">
                                       <% if (item.discountedPrice < item.originalPrice) { %>

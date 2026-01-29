@@ -277,7 +277,7 @@ class ProductData {
      
       const productElement = document.createElement('div');
       productElement.classList.add('product-list-single', 'product-color--golden', 'fade-in-element');
-      const truncatedDescription = truncateString(product.basicInformation.description, 150);
+      const truncatedDescription = truncateString(product.description, 150);
       const isUnavailable = product.status === false;
       
       const originalPrice = product.pricingAndAvailability.regularPrice;
@@ -286,11 +286,11 @@ class ProductData {
       
       productElement.innerHTML = `
         <a href="/productDetails/${product._id}" class="product-list-img-link">
-          <img class="img-fluid" src="${product.images.highResolutionPhotos[0]}" alt="${product.basicInformation.name}" style="width: 350px; height: 350px; object-fit: contain;">
-          <img class="img-fluid" src="${product.images.highResolutionPhotos[0]}" alt="${product.basicInformation.name}" style="width: 350px; height: 350px; object-fit: contain;">
+          <img class="img-fluid" src="${product.images[0]}" alt="${product.name}" style="width: 350px; height: 350px; object-fit: contain;">
+          <img class="img-fluid" src="${product.images[0]}" alt="${product.name}" style="width: 350px; height: 350px; object-fit: contain;">
         </a>
         <div class="product-list-content">
-          <h5 class="product-list-link"><a href="/productDetails/${product._id}">${product.basicInformation.name}</a></h5>
+          <h5 class="product-list-link"><a href="/productDetails/${product._id}">${product.name}</a></h5>
           <ul class="review-star">
             ${generateRatingStars()}
           </ul>

@@ -11,11 +11,11 @@ const getWishListItems = async (req, res) => {
     
     const wishlistItems = wishlist ? wishlist.products.map(item => ({
       productId: item.productId._id,
-      name: item.productId.basicInformation.name,
-      price: item.productId.pricingAndAvailability.salesPrice || item.productId.pricingAndAvailability.regularPrice,
-      image: item.productId.images.highResolutionPhotos[0],
+      name: item.productId.name,
+      price: item.productId.pricingAndAvailability.salesPrice || item.productId.price,
+      image: item.productId.images[0],
       stockAvailability: item.productId.pricingAndAvailability.stockAvailability > 0,
-      status: item.productId.status
+      isPublished: item.productId.isPublished
     })) : [];
 
     res.json(wishlistItems);

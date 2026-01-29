@@ -163,10 +163,36 @@
 
     async handleCreateCategory(e) {
         e.preventDefault();
+
+        const categoryName = document.getElementById("categoryName");
+        const categoryDescription = document.getElementById("categoryDescription");
+
+        const nameErrorSpan = document.getElementById("categoryNameError");
+        const descriptionErrorSpan = document.getElementById("categoryDescriptionError");
+
+        let isValid = true;
+
+        if (categoryName.value.trim() === '') {
+            nameErrorSpan.textContent = "Name is required";
+            isValid = false;
+        } else {
+            nameErrorSpan.textContent = '';
+        }
+
+        if (categoryDescription.value.trim() === '') {
+            descriptionErrorSpan.textContent = 'Description is required';
+            isValid = false;
+        } else {
+            descriptionErrorSpan.textContent = '';
+        }
+
+        if (!isValid) return;
+
         const formData = {
-            name: document.getElementById("categoryName").value.trim(),
-            description: document.getElementById("categoryDescription").value.trim(),
+            name: categoryName.value.trim(),
+            description: categoryDescription.value.trim(),
         };
+        
 
         try {
             const response = await axios.post("/admin/categories", formData);
@@ -179,6 +205,7 @@
             e.target.reset();
         } catch (error) {
             console.error("Error creating category:", error);
+
             Swal.fire({
                 title: "Error!",
                 text: "There was a problem creating the category.",
@@ -235,47 +262,37 @@
 
     async softDeleteCategory(categoryId) {
         const deleteButton = document.querySelector(`.delete-category[data-id="${categoryId}"]`);
-        const isDeleting = deleteButton.classList.contains("btn-danger");
 
-        const result = await Swal.fire({
-            title: isDeleting ? "Are you sure you want to unlist this category?" : "Are you sure you want to list this category?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: isDeleting ? "Yes, Unlist it!" : "Yes, List it!",
-        });
+        try {
+            const response = await axios.patch(`/admin/categories?categoryId=${categoryId}`);
+            const isBlocked = response.data.isBlocked;
 
-        if (result.isConfirmed) {
-            try {
-                const response = await axios.patch(`/admin/categories?categoryId=${categoryId}`);
-                const data = response.data;
-                if (data.isBlocked) {
-                    deleteButton.classList.remove("btn-danger");
-                    deleteButton.classList.add("btn-success");
-                    deleteButton.textContent = "List";
-                    Swal.fire({
-                        title: "Unlisted!",
-                        text: "Successfully unlisted category.",
-                        icon: "success",
-                    });
-                } else {
-                    deleteButton.classList.remove("btn-success");
-                    deleteButton.classList.add("btn-danger");
-                    deleteButton.textContent = "Unlist";
-                    Swal.fire({
-                        title: "Listed!",
-                        text: "Category has been listed.",
-                        icon: "success",
-                    });
-                }
-                this.fetchCategories();
-            } catch (error) {
-                console.error("Error updating category status:", error);
+            deleteButton.classList.remove("btn-danger", "btn-success");
+
+            if (isBlocked) {
+                deleteButton.classList.add("btn-success");
+                deleteButton.textContent = "List";
                 Swal.fire({
-                    title: "Error!",
-                    text: "There was a problem updating the category.",
-                    icon: "error",
+                    title: "Unlisted!",
+                    text: "Successfully unlisted category.",
+                    icon: "success",
+                });
+            } else {
+                deleteButton.classList.add("btn-danger");
+                deleteButton.textContent = "Unlist";
+                Swal.fire({
+                    title: "Listed!",
+                    text: "Category has been listed.",
+                    icon: "success",
                 });
             }
+        } catch (error) {
+            console.error("Error updating category status:", error);
+            Swal.fire({
+                title: "Error!",
+                text: "There was a problem updating the category.",
+                icon: "error",
+            });
         }
     }
 }

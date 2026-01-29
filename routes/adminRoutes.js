@@ -37,9 +37,9 @@ adminRoute.get('/sales-data', adminAuth.requireAuth, dashboardController.getSale
 
 // Product management
 adminRoute.get('/productList', adminAuth.requireAuth, productController.getProductsList);
+adminRoute.get('/products/:productId', adminAuth.requireAuth, productController.getProductDetails);
 adminRoute.get('/addProduct', adminAuth.requireAuth, productController.getAddProductPage);
 adminRoute.post('/products/add', adminAuth.requireAuth, productController.addProduct);
-adminRoute.get('/products/:productId', adminAuth.requireAuth, productController.getProductDetails);
 adminRoute.get('/editProduct/:productId', adminAuth.requireAuth, productController.getProductEditPage);
 adminRoute.put('/editProduct/:productId', adminAuth.requireAuth, productController.updateProduct);
 adminRoute.patch('/products/softDelete', adminAuth.requireAuth, productController.softDeleteProduct);
@@ -58,9 +58,9 @@ adminRoute.delete('/delete-product-offer/:id', adminAuth.requireAuth, productCon
 
 // Category management
 adminRoute.get("/categoryManagement", categoryController.loadCategoryManagementPage);
+adminRoute.get("/categories/:id", adminAuth.requireAuth, categoryController.getCategory);
 adminRoute.get("/categories", categoryController.getAllCategories);
 adminRoute.post("/categories", categoryController.addNewCategory);
-adminRoute.get("/categories/:id", adminAuth.requireAuth, categoryController.getCategory);
 adminRoute.put("/categories/:id", adminAuth.requireAuth, categoryController.editExistingCategory);
 adminRoute.patch("/categories", adminAuth.requireAuth, categoryController.softDeleteCategory);
 

@@ -1,81 +1,9 @@
 <%- include('../partials/admin/header') %>
 <%- include('../partials/admin/search') %>  
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/styles/products.css">
 
-<style>
-    /* Container for images with remove button */
-    .img-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 8px;
-        position: relative;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    }
-
-    /* Thumbnail images */
-    .img-thumbnail {
-        max-height: 180px;
-        border: 1px solid #ddd;
-        padding: 4px;
-        border-radius: 4px;
-        display: block;
-        width: auto;
-        max-width: 100%;
-        margin-right: 10px;
-    }
-
-    /* Remove button for images */
-    .btn-danger.btn-sm {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 4px 8px;
-        font-size: 0.75rem;
-        border-radius: 4px;
-        white-space: nowrap;
-    }
-
-    /* Error message container */
-    .error-message-container {
-        height: 20px; 
-        margin-top: 5px;
-    }
-
-    /* Modal dialog settings */
-    .modal-dialog {
-        max-width: 60vw; /* Adjust width as needed */
-        margin: 1.75rem auto;
-    }
-
-    /* Modal content styling */
-    .modal-content {
-        border-radius: 0.5rem;
-    }
-
-    /* Container for the cropper image */
-    .cropper-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 60vh; /* Adjust height as needed */
-        width: 100%;
-        overflow: hidden;
-    }
-
-    /* Modal image settings */
-    .modal-body img {
-        max-width: 100%;
-        max-height: 60vh;
-        object-fit: contain;
-        display: block; /* Centers the image horizontally */
-        margin: auto; /* Centers the image horizontally */
-    }
-</style>
-
-
+<form id="product-form">
 <section class="content-main">
     <div class="row">
         <div class="col-12">
@@ -83,7 +11,7 @@
                 <h2 class="content-title">Edit Product</h2>
                 <div class="text-end">
                     <a href="/admin/productList" class="btn btn-secondary">Back to Product List</a>
-                    <button class="btn btn-md rounded font-sm hover-up" id="update" onclick="handleUpdateClick(event)" data-product-id="<%= product._id %>">Update</button>
+                    <button type="submit" class="btn btn-md rounded font-sm hover-up" id="update" data-product-id="<%= product._id %>">Update</button>
                 </div>
             </div>
         </div>
@@ -93,27 +21,28 @@
                     <!-- Product Details -->
                     <div class="mb-4">
                         <label for="product_name" class="form-label">Product Name</label>
-                        <input type="text" placeholder="Type here" class="form-control" id="product_name" value="<%= product.basicInformation.name %>">
+                        <input type="text" placeholder="Type here" class="form-control" id="product_name" value="<%= product.name %>">
+                        <div class="error-message-container"><div id="name-error" class="form-error text-danger"></div></div>
                     </div>
                     <div class="mb-4"> 
                         <label for="product_brand" class="form-label">Brand</label>
                         <select name="brand" id="product_brand" class="form-select">
                             <% brands.forEach(brand => { %>
-                                <option value="<%= brand %>" <%= brand === product.basicInformation.brand ? 'selected' : '' %>><%= brand %></option>
+                                <option value="<%= brand %>" <%= brand === product.brand ? 'selected' : '' %>><%= brand %></option>
                             <% }); %>
                         </select>
                     </div>
                     <div class="mb-4">
                         <label for="product_description" class="form-label">Description</label>
-                        <textarea placeholder="Type here" class="form-control" id="product_description"><%= product.basicInformation.description %></textarea>
+                        <textarea placeholder="Type here" class="form-control" id="product_description"><%= product.description %></textarea>
                     </div>
 
                     <!-- Technical Specifications -->
                      <div class="mb-4">
                         <label for="product_processor" class="form-label">Processor</label>
                         <select name="processor" id="product_processor" class="form-select">
-                            <% processors.forEach(processor => { %>
-                                <option value="<%= processor %>" <%= processor === product.technicalSpecification.processor ? 'selected' : '' %>><%= processor %></option>
+                           <% processors.forEach(processor => { %>
+                            <option value="<%= processor %>" <%= processor === product.processor ? 'selected' : '' %>><%= processor %></option>
                             <% }); %>
                         </select>
                      </div>
@@ -121,29 +50,33 @@
                         <div class="col-md-4 mb-3">
                             <label for="product_ram" class="form-label">RAM</label>
                             <select class="form-select" id="product_ram">
-                                <% ['8GB', '16GB', '32GB'].forEach(ram => { %>
-                                    <option value="<%= ram %>" <%= ram === product.technicalSpecification.ram ? 'selected' : '' %>><%= ram %></option>
+                                <% ram.forEach(r => { %>
+                                    <option value="<%= r %>" <%= r === product.ram ? 'selected' : '' %>><%= r %></option>
                                 <% }); %>
                             </select>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="product_storage" class="form-label">Storage</label>
                             <select class="form-select" id="product_storage">
-                                <% ['256GB', '512GB', '1TB SSD', '2TB SSD'].forEach(storage => { %>
-                                    <option value="<%= storage %>" <%= storage === product.technicalSpecification.storage ? 'selected' : '' %>><%= storage %></option>
+                                <% storage.forEach(storage => { %>
+                                    <option value="<%= storage %>" <%= storage === product.storage ? 'selected' : '' %>><%= storage %></option>
                                 <% }); %>
                             </select>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="product_graphicsCard" class="form-label">Graphics Card</label>
-                            <input type="text" placeholder="Type here" class="form-control" id="product_graphicsCard" value="<%= product.technicalSpecification.graphicsCard %>">
+                            <select class="form-select" id="product_graphicsCard">
+                                <% graphicsCards.forEach(graphics => { %>
+                                    <option value="<%= graphics %>" <%= graphics === product.graphicsCard ? 'selected' : '' %>><%= graphics %></option>
+                                <% }); %>
+                            </select>
                         </div>
                     </div>
                     
                     <!-- Design and Build -->
                     <div class="mb-4">
                         <label for="product_color" class="form-label">Color</label>
-                        <input type="text" placeholder="Type here" class="form-control" id="product_color" value="<%= product.designAndBuild.color %>">
+                        <input type="text" placeholder="Type here" class="form-control" id="product_color" value="<%= product.color %>">
                     </div>
                     
                     <!-- Images -->
@@ -152,8 +85,8 @@
                         <input class="form-control" type="file" id="fileAccess" multiple>
                         <div id="fileAccessError" class="text-danger mt-2"></div>
                         <div id="imagePreview" class="mt-3">
-                            <% if (product.images && product.images.highResolutionPhotos.length > 0) { %>
-                                <% product.images.highResolutionPhotos.forEach((img, index) => { %>
+                            <% if (product.images && product.images.length > 0) { %>
+                                <% product.images.forEach((img, index) => { %>
                                     <div class="img-container">
                                         <img src="<%= img %>" class="img-thumbnail existing-image" data-img-src="<%= img %>" data-index="<%= index %>">
                                         <button class="btn btn-danger btn-sm delete-btn" data-img-src="<%= img %>" data-index="<%= index %>">Remove</button>
@@ -171,15 +104,18 @@
                     <!-- Pricing and Availability -->
                     <div class="mb-4">
                         <label for="product_regularPrice" class="form-label">Regular Price</label>
-                        <input type="number" placeholder="Type here" class="form-control" id="product_regularPrice" name="regularPrice" value="<%= product.pricingAndAvailability.regularPrice %>">
+                        <input type="number" placeholder="Type here" class="form-control" id="product_regularPrice" name="regularPrice" value="<%= product.price %>">
+                        <div class="error-message-container"><div id="price-error" class="form-error text-danger"></div></div>
                     </div>
                     <div class="mb-4">
                         <label for="product_salesPrice" class="form-label">Sales Price</label>
-                        <input type="number" placeholder="Type here" class="form-control" id="product_salesPrice" name="salesPrice" value="<%= product.pricingAndAvailability.salesPrice %>">
+                        <input type="number" placeholder="Type here" class="form-control" id="product_salesPrice" name="salesPrice" value="<%= product.salePrice %>">
+                        <div class="error-message-container"><div id="salePrice-error" class="form-error text-danger"></div></div>
                     </div>
                     <div class="mb-4">
                         <label for="product_stockAvailability" class="form-label">Stock Availability</label>
-                        <input type="number" placeholder="Type here" class="form-control" id="product_stockAvailability" name="stockAvailability" value="<%= product.pricingAndAvailability.stockAvailability %>">
+                        <input type="number" placeholder="Type here" class="form-control" id="product_stockAvailability" name="stockAvailability" value="<%= product.stock %>">
+                        <div class="error-message-container"><div id="stock-error" class="form-error text-danger"></div></div>
                     </div>
                     
                     <!-- Categories -->
@@ -190,20 +126,22 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" 
                                        value="<%= category._id.toString() %>" 
-                                       name="categories" 
+                                       name="category" 
                                        id="category-<%= category._id %>" 
-                                       <%= product.category.includes(category._id.toString()) ? 'checked' : '' %>>
+                                       <%= product.categories.includes(category._id.toString()) ? 'checked' : '' %>>
                                 <label class="form-check-label" for="category-<%= category._id %>">
                                     <%= category.name %>
                                 </label>
                             </div>
                         <% }); %>
+                        <div class="error-message-container"><div id="categories-error" class="form-error text-danger"></div></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+</form>
 <%- include("../partials/admin/footer") %>
 
 <!-- Image Cropper Modal -->
@@ -227,6 +165,6 @@
     </div>
 </div>
 
-<script src="/javascript/editProduct.js" defer></script>
+<script src="/javascript/products.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

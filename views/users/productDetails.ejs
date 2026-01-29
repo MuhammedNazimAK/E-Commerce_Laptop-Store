@@ -23,13 +23,13 @@
             <div class="container">
                 <div class="row">
                     <div class="col-12">
-                        <h3 class="breadcrumb-title"><%= product.basicInformation.name %></h3>
+                        <h3 class="breadcrumb-title"><%= product.name %></h3>
                         <div class="breadcrumb-nav breadcrumb-nav-color--black breadcrumb-nav-hover-color--golden">
                             <nav aria-label="breadcrumb">
                                 <ul>
                                     <li><a href="/home">Home</a></li>
                                     <li><a href="shop-grid-sidebar-left.html">Shop</a></li>
-                                    <li class="active" aria-current="page"><%= product.basicInformation.name %></li>
+                                    <li class="active" aria-current="page"><%= product.name %></li>
                                 </ul>
                             </nav>
                         </div>
@@ -50,9 +50,9 @@
                     <!-- Start Large Image -->
                     <div class="product-large-image product-large-image-horaizontal swiper-container">
                         <div class="swiper-wrapper">
-                            <% product.images.highResolutionPhotos.forEach(image => { %>
+                            <% product.images.forEach(image => { %>
                                 <div class="product-image-large-image swiper-slide zoom-image-hover img-responsive">
-                                    <img src="<%= image %>" alt="<%= product.basicInformation.name %>">
+                                    <img src="<%= image %>" alt="<%= product.name %>">
                                 </div>
                             <% }) %>
                         </div>
@@ -61,9 +61,9 @@
                     <!-- Start Thumbnail Image -->
                     <div class="product-image-thumb product-image-thumb-horizontal swiper-container pos-relative mt-5">
                         <div class="swiper-wrapper">
-                            <% product.images.highResolutionPhotos.forEach(image => { %>
+                            <% product.images.forEach(image => { %>
                                 <div class="product-image-thumb-single swiper-slide">
-                                    <img class="img-fluid" src="<%= image %>" alt="<%= product.basicInformation.name %>">
+                                    <img class="img-fluid" src="<%= image %>" alt="<%= product.name %>">
                                 </div>
                             <% }) %>
                         </div>
@@ -78,7 +78,7 @@
                 <div class="product-details-content-area product-details--golden" data-aos="fade-up" data-aos-delay="200">
                     <!-- Start  Product Details Text Area-->
                     <div class="product-details-text">
-                        <h4 class="title"><%= product.basicInformation.name %></h4>
+                        <h4 class="title"><%= product.name %></h4>
                         <div class="d-flex align-items-center">
                             <ul class="review-star">
                                     <li class="fill"><i class="ion-android-star"></i></li>
@@ -96,7 +96,7 @@
                               <span class="offer-name" style="color: red; font-weight: bold; display: block; margin-top: 5px;"><%= product.offerName %> - <%= product.discount %>% OFF</span>
                             <% } %>
                         </div>
-                        <!-- <p><%= product.basicInformation.description %></p> -->
+                        <!-- <p><%= product.description %></p> -->
                     </div> <!-- End  Product Details Text Area-->
                     <!-- Start Product Variable Area -->
                     <div class="product-details-variable">
@@ -202,7 +202,7 @@
                             <!-- Start Product Details Tab Content Singel -->
                             <div class="tab-pane active show" id="description">
                                 <div class="single-tab-content-item">
-                                    <p><%= product.basicInformation.description %></p>
+                                    <p><%= product.description %></p>
                                 </div>
                             </div> <!-- End Product Details Tab Content Singel -->
                             <!-- Start Product Details Tab Content Singel -->
@@ -212,23 +212,23 @@
                                         <tbody>
                                             <tr>
                                                 <th scope="row">Processor</th>
-                                                <td><%= product.technicalSpecification.processor %></td>
+                                                <td><%= product.processor %></td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">RAM</th>
-                                                <td><%= product.technicalSpecification.ram %></td>
+                                                <td><%= product.ram %></td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">Storage</th>
-                                                <td><%= product.technicalSpecification.storage %></td>
+                                                <td><%= product.storage %></td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">Graphics Card</th>
-                                                <td><%= product.technicalSpecification.graphicsCard %></td>
+                                                <td><%= product.graphicsCard %></td>
                                             </tr>
                                             <tr>
                                                 <th scope="row">Color</th>
-                                                <td><%= product.designAndBuild.color %></td>
+                                                <td><%= product.color %></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -364,8 +364,8 @@
                                         <div class="product-default-single-item product-color--golden swiper-slide">
                                             <div class="image-box">
                                                 <a href="/productDetails/<%= product._id %>" class="image-link">
-                                                    <% if (product.images && product.images.highResolutionPhotos && product.images.highResolutionPhotos.length > 0) { %>
-                                                        <img src="<%= product.images.highResolutionPhotos[0] %>" alt="<%= product.basicInformation.name %>">
+                                                    <% if (product.images && product.images && product.images.length > 0) { %>
+                                                        <img src="<%= product.images[0] %>" alt="<%= product.name %>">
                                                     <% } else { %>
                                                         <img src="" alt="Placeholder">
                                                     <% } %>
@@ -382,7 +382,7 @@
                                             </div>
                                             <div class="content">
                                                 <div class="content-left">
-                                                    <h6 class="title"><a href="/productDetails/<%= product._id %>"><%= product.basicInformation.name %></a></h6>
+                                                    <h6 class="title"><a href="/productDetails/<%= product._id %>"><%= product.name %></a></h6>
                                                     <ul class="review-star">
                                                         <li class="fill"><i class="ion-android-star"></i></li>
                                                         <li class="fill"><i class="ion-android-star"></i></li>
@@ -392,7 +392,7 @@
                                                     </ul>
                                                 </div>
                                                 <div class="content-right">
-                                                    <span class="price">₹<%= product.pricingAndAvailability.regularPrice %> / ₹<%= product.pricingAndAvailability.salesPrice %></span>
+                                                    <span class="price">₹<%= product.price %> / ₹<%= product.salePrice %></span>
                                                 </div>
                                             </div>
                                         </div>

@@ -434,7 +434,7 @@
         order.products.forEach(item => {
           const row = document.createElement('tr');
           row.innerHTML = `
-            <td>${item.product.basicInformation?.name || 'N/A'}</td>
+            <td>${item.product.name || 'N/A'}</td>
             <td>${item.quantity || 'N/A'}</td>
             <td>₹${(item.price).toFixed(2)}</td>
             <td>₹${((item.quantity * item.price)).toFixed(2)}</td>

@@ -30,6 +30,7 @@ const userSchema = new Schema({
   googleId: {
     type: String,
     unique: true,
+    sparse: true,
   },
   image: {
     type: String,
@@ -98,6 +99,7 @@ const userSchema = new Schema({
   resetPasswordToken: {
     type: String,
     unique: true,
+    sparse: true,
   },
   resetPasswordExpires: {
     type: Date,

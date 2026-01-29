@@ -3,6 +3,7 @@
   const ProductOffer = require('../models/productOfferModel');
   const CategoryOffer = require('../models/categoryOfferModel');
   const StatusCodes = require('../public/javascript/statusCodes');
+  const productOptions = require('../public/javascript/productOptions')
   const { validationResult } = require('express-validator');
   const { uploadImages } = require("../config/cloudinary");
   const { incrementProductView } = require("../utils/viewCounter");
@@ -50,12 +51,12 @@
         current.discountPercentage > best.discountPercentage ? current : best
       , { discountPercentage: 0, offerName: '' });
   
-      discountedPrice = product.pricingAndAvailability.regularPrice * (1 - bestOffer.discountPercentage / 100);
+      discountedPrice = product.price * (1 - bestOffer.discountPercentage / 100);
     }
   
     return {
       ...product.toObject(),
-      originalPrice: product.pricingAndAvailability.regularPrice,
+      originalPrice: product.price,
       discountedPrice: discountedPrice,
       discount: bestOffer.discountPercentage,
       offerName: bestOffer.offerName
@@ -66,7 +67,13 @@
   const getAddProductPage = async (req, res) => {
     try {
       const categories = await Category.find();
-      res.render("admin/addProduct", { categories });
+
+      res.render("admin/addProduct", { 
+        brands: productOptions.brands, 
+        processors: productOptions.processors,  
+        ram: productOptions.ram,
+        storage: productOptions.storage,
+        graphicsCards: productOptions.graphicsCards, categories });
     } catch (error) {
       console.error("Error fetching categories:", error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
@@ -79,19 +86,21 @@
     try {
       const { 
         name,
-        color,
-        processor,
-        ram,
-        storage,
-        graphicsCard,
         brand,
         description,
-        regularPrice,
-        salesPrice,
-        stockAvailability,
-        status,
+        ram,
+        storage,
+        processor,
+        graphicsCard,
         categories,
+        color,
+        price,
+        salePrice,
+        stock,
+        status,
       } = req.body;
+
+      console.log("req body", req.body);
 
       let imageUrls = [];
         if (req.files && req.files.images) {
@@ -125,28 +134,20 @@
       : JSON.parse(categories);
 
       const product = new Product({
-        basicInformation: {
           name,
           brand,
           description,
-        },
-        designAndBuild: { color },
-        technicalSpecification: {
-          processor,
           ram,
           storage,
+          processor,
           graphicsCard,
-        },
-        pricingAndAvailability: {
-          regularPrice,
-          salesPrice,
-          stockAvailability,
-        },
-        images: {
-          highResolutionPhotos: imageUrls,
-        },
-        category: parsedCategories,   
-        status: status === "Published", // Convert status to boolean
+          categories: parsedCategories,   
+          color,
+          price,
+          salePrice,
+          stock,
+          images: imageUrls,
+          isPublished: status === "Published", // Convert status to boolean
       });
 
       await product.save();
@@ -196,17 +197,17 @@
 
       let filter = {};
       if (brand) {
-        filter['basicInformation.brand'] = brand;
+        filter['brand'] = brand;
       }
       if (category) {
         filter.category = category;
       }
 
-      const brands = await Product.distinct('basicInformation.brand');
-      const processors = await Product.distinct('technicalSpecification.processor');
-      const rams = await Product.distinct('technicalSpecification.ram');
-      const storages = await Product.distinct('technicalSpecification.storage');
-      const graphicsCards = await Product.distinct('technicalSpecification.graphicsCard');
+      const brands = await Product.distinct('brand');
+      const processors = await Product.distinct('processor');
+      const rams = await Product.distinct('ram');
+      const storages = await Product.distinct('storage');
+      const graphicsCards = await Product.distinct('graphicsCard');
       const categoryIds = await Product.distinct('category');
       const categories = await Category.find({ _id: { $in: categoryIds } }).select('name');
       const products = await Promise.all((await Product.find(filter)).map(async (product) => {
@@ -256,16 +257,19 @@
 
     try {
       const product = await Product.findById(productId).lean();
-      const brands = await Product.distinct('basicInformation.brand');
-      const processors = await Product.distinct('technicalSpecification.processor');
       const categories = await Category.find().lean();
       if (!product) {
         return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: "Product not found" });
       }
 
-      product.category = product.category.map(cat => cat._id.toString());
+      product.categories = product.categories.map(cat => cat._id.toString());
 
-      res.render("admin/editProduct", { product, categories, brands, processors });
+      res.render("admin/editProduct", { product, categories, 
+        brands: productOptions.brands, 
+        processors: productOptions.processors,  
+        ram: productOptions.ram,
+        storage: productOptions.storage,
+        graphicsCards: productOptions.graphicsCards });
     } catch (error) {
       console.error("Error fetching product details:", error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: "Error fetching product details" });
@@ -275,15 +279,23 @@
 
   const updateProduct = async (req, res) => {    
     try {
+
+      
       const { productId } = req.params;
-  
-      let updatedData;
-      try { 
-        updatedData = JSON.parse(req.body.productData);
-      } catch (error) {
-        console.error("Error parsing product data:", error);
-        return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: "Invalid product data" });
-      }
+
+      const {
+        name,
+        brand,
+        description,
+        color,
+        processor,
+        ram,
+        storage,
+        graphicsCard,
+        price,
+        salePrice,
+        stock
+      } = req.body;
   
       const existingProduct = await Product.findById(productId);
       if (!existingProduct) {
@@ -331,19 +343,19 @@
         { _id: productId },
         {
           $set: {
-            'basicInformation.name': updatedData.basicInformation.name,
-            'basicInformation.brand': updatedData.basicInformation.brand,
-            'basicInformation.description': updatedData.basicInformation.description,
-            'designAndBuild.color': updatedData.designAndBuild.color,
-            'technicalSpecification.processor': updatedData.technicalSpecification.processor,
-            'technicalSpecification.ram': updatedData.technicalSpecification.ram,
-            'technicalSpecification.storage': updatedData.technicalSpecification.storage,
-            'technicalSpecification.graphicsCard': updatedData.technicalSpecification.graphicsCard,
-            'pricingAndAvailability.regularPrice': updatedData.pricingAndAvailability.regularPrice,
-            'pricingAndAvailability.salesPrice': updatedData.pricingAndAvailability.salesPrice,
-            'pricingAndAvailability.stockAvailability': updatedData.pricingAndAvailability.stockAvailability,
-            'images.highResolutionPhotos': imageUrls,
-            'category': parsedCategories,
+            'name': name,
+            'brand': brand,
+            'description': description,
+            'color': color,
+            'processor': processor,
+            'ram': ram,
+            'storage': storage,
+            'graphicsCard': graphicsCard,
+            'price': price,
+            'salePrice': salePrice,
+            'isPublished': stock === 'Published',
+            'images': imageUrls,
+            'categories': parsedCategories,
           },
         },
         { new: true }
@@ -373,8 +385,8 @@
             return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: "Product not found" });
         }
 
-        if (product.images || product.images.highResolutionPhotos) {
-          product.images.highResolutionPhotos.splice(ImageIndex, 1);
+        if (product.images || product.images) {
+          product.images.splice(ImageIndex, 1);
         }
 
         await product.save();
@@ -410,7 +422,7 @@
         { _id: { $ne: product._id } }, // Exclude the current product
         {
           $or: [
-            { 'basicInformation.brand': product.basicInformation.brand },
+            { 'brand': product.brand },
             { 'category': { $in: product.category } }
           ]
         }
@@ -457,8 +469,8 @@
         aggregationPipeline.push({
           $match: {
             $or: [
-              { "basicInformation.name": { $regex: searchQuery, $options: "i" } },
-              { "basicInformation.brand": { $regex: searchQuery, $options: "i" } },
+              { "name": { $regex: searchQuery, $options: "i" } },
+              { "brand": { $regex: searchQuery, $options: "i" } },
               { "category": { $regex: searchQuery, $options: "i" } },
             ],
           },
@@ -473,7 +485,7 @@
       };
   
       if (filters.brands.length > 0) {
-        matchStage.$match["basicInformation.brand"] = { $in: filters.brands };
+        matchStage.$match["brand"] = { $in: filters.brands };
       }
       if (filters.categories && filters.categories.length > 0) {
         matchStage.$match.category = { 
@@ -483,13 +495,13 @@
         };
       }
       if (filters.rams.length > 0) {
-        matchStage.$match["technicalSpecification.ram"] = { $in: filters.rams };
+        matchStage.$match["ram"] = { $in: filters.rams };
       }
       if (filters.processors.length > 0) {
-        matchStage.$match["technicalSpecification.processor"] = { $in: filters.processors };
+        matchStage.$match["processor"] = { $in: filters.processors };
       }
       if (filters.graphicsCards.length > 0) {
-        matchStage.$match["technicalSpecification.graphicsCard"] = { $in: filters.graphicsCards };
+        matchStage.$match["graphicsCard"] = { $in: filters.graphicsCards };
       }
       if (filters.minRating > 0) {
         matchStage.$match.averageRating = { $gte: filters.minRating };
@@ -526,10 +538,10 @@
           aggregationPipeline.push({ $sort: { createdAt: -1 } });
           break;
         case "nameAsc":
-          aggregationPipeline.push({ $sort: { "basicInformation.name": 1 } });
+          aggregationPipeline.push({ $sort: { "name": 1 } });
           break;
         case "nameDesc":
-          aggregationPipeline.push({ $sort: { "basicInformation.name": -1 } });
+          aggregationPipeline.push({ $sort: { "name": -1 } });
           break;
         default:
           aggregationPipeline.push({ $sort: { createdAt: 1 } });
@@ -785,7 +797,7 @@
 
     loadProductOfferPage: async (req, res) => {
       try {
-        const offers = await ProductOffer.find().populate({ path: 'product', select: 'basicInformation' });
+        const offers = await ProductOffer.find().populate({ path: 'product', select: 'name brand' });
 
         // Sort offers: default offer first, then by start date
         offers.sort((a, b) => {

@@ -48,7 +48,7 @@
               <select class="form-select" id="product" name="product">
                 <option value="">Select a product</option>
                 <% products.forEach(product => { %>
-                  <option value="<%= product._id %>"><%= product.basicInformation.name %></option>
+                  <option value="<%= product._id %>"><%= product.name %></option>
                 <% }) %>
               </select>
               <div id="productError" class="error-message"></div>

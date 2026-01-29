@@ -1,143 +1,6 @@
 <%- include("../partials/user/header") %>
 <%- include("../partials/user/right") %>
 
-<!-- 
-<style>
-
-    .image-box {
-    position: relative;
-    }
-
-    .offer-overlay {
-    position: absolute;
-    top: 200px;
-    /* right: 10px; */
-    color: rgb(255, 0, 0);
-    font-weight: bold;
-    }
-
-    .offer-text {
-    font-size: 14px;
-    }
-
-    .product-default-single-item {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 15px 15px 45px;
-        margin-bottom: 20px;
-        position: relative;
-        transition: box-shadow 0.2s ease;
-        height: 480px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .product-default-single-item:hover {
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .product-default-single-item .image-box {
-        height: 220px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 10px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .product-default-single-item .image-box img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-    }
-
-    .product-default-single-item .review-star {
-        list-style: none;
-        padding: 0;
-        margin: 0 0 5px 0;
-        display: flex;
-    }
-
-    .product-default-single-item .review-star li {
-        color: #ffd700;
-        font-size: 12px;
-    }
-
-    .product-default-single-item .title {
-        font-size: 16px;
-        margin-bottom: 10px;
-        text-align: center;
-        max-height: 40px;
-        overflow: hidden;
-    }
-
-    .product-default-single-item .content {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .product-default-single-item .laptop-specs {
-        font-size: 0.8rem;
-        color: #4c4c4c;
-        margin-bottom: 10px;
-        max-height: 36px;
-    }
-
-    .product-default-single-item .price {
-        font-size: 14px;
-        margin-top: auto;
-        margin-bottom: 12px;
-    }
-
-    .product-default-single-item .price .sale-price {
-        color: #ff0000;
-        font-weight: bold;
-        margin-right: 5px;
-    }
-
-    .product-default-single-item .price del {
-        color: #999;
-    }
-
-    .product-default-single-item .action-link {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: rgba(0, 0, 0, 0.8);
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 15px;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        transform: translateY(100%);
-    }
-
-    .product-default-single-item:hover .action-link {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-
-    .product-default-single-item .action-link a {
-        text-decoration: none;
-        color: #fff;
-        transition: color 0.2s ease;
-    }
-
-    .product-default-single-item .action-link a:hover {
-        color: #ff0000;
-    }
-    .add-to-wishlist.added-to-wishlist {
-  color: red;
-}
-
-</style> -->
-
 <style>
 
 
@@ -155,7 +18,7 @@
         transition: all 0.3s ease;
     }
 
-    .view-all-button:hover {        /* border: 2px solid #ff0000; */
+    .view-all-button:hover { 
 
         background-color: #ff0000;
         color: #fff;
@@ -167,9 +30,6 @@
 }
 
 </style>
-    <!-- Start Header Area -->
-
-
     <!-- Start Hero Slider Section-->
     <div class="hero-slider-section">
         <!-- Slider main container -->
@@ -245,9 +105,9 @@
                                     <div class="product-default-single-item product-color--golden swiper-slide">
                                         <div class="image-box" style="background-color: white;">
                                             <a href="/productDetails/<%= product._id %>" class="image-link">
-                                                <img src="<%= product.images.highResolutionPhotos[0] %>" alt="<%= product.basicInformation.name %>">
+                                                <img src="<%= product.images[0] %>" alt="<%= product.name %>">
                                             </a>
-                                            <% if (!product.status) { %>
+                                            <% if (!product.isPublished) { %>
                                                 <div class="tag">
                                                     <span>Unavailable</span>
                                                 </div>
@@ -262,7 +122,7 @@
                                             <% } %>
                                             <div class="action-link">
                                                 <div class="action-link-left">
-                                                    <% if (product.status) { %>
+                                                    <% if (product.isPublished) { %>
                                                         <a href="#" data-bs-toggle="modal" data-bs-target="#modalAddcart" onclick="addToCart('<%= product._id %>')">Add to Cart</a>
                                                     <% } else { %>
                                                         <a class="disabled">Unavailable</a>
@@ -278,7 +138,7 @@
                                         <div class="content">
                                             <div class="content-left">
                                                 <h6 class="title">
-                                                    <a href="/productDetails/<%= product._id %>"><%= product.basicInformation.name %></a>
+                                                    <a href="/productDetails/<%= product._id %>"><%= product.name %></a>
                                                 </h6>
                                                 <!-- Default Rating -->
                                                 <ul class="review-star">
@@ -413,13 +273,13 @@
                                         <div class="product-default-single-item product-color--golden swiper-slide">
                                             <div class="image-box" style="background-color: white;">
                                                 <a href="/productDetails/<%= product._id %>" class="image-link">
-                                                    <% if (product.images && product.images.highResolutionPhotos && product.images.highResolutionPhotos.length > 0) { %>
-                                                        <img src="<%= product.images.highResolutionPhotos[0] %>" alt="<%= product.basicInformation.name %>" class="img-fluid">
+                                                    <% if (product.images && product.images && product.images.length > 0) { %>
+                                                        <img src="<%= product.images[0] %>" alt="<%= product.name %>" class="img-fluid">
                                                     <% } else { %>
                                                         <img src="/path/to/placeholder-image.jpg" alt="Placeholder Image" class="img-fluid">
                                                     <% } %>
                                                 </a>
-                                                <% if (!product.status) { %>
+                                                <% if (!product.isPublished) { %>
                                                     <div class="tag">
                                                         <span>Unavailable</span>
                                                     </div>
@@ -434,7 +294,7 @@
                                                 <% } %>
                                                 <div class="action-link">
                                                     <div class="action-link-left">
-                                                        <% if (product.status) { %>
+                                                        <% if (product.isPublished) { %>
                                                             <a href="#" data-bs-toggle="modal" data-bs-target="#modalAddcart" onclick="addToCart('<%= product._id %>')">Add to Cart</a>
                                                         <% } else { %>
                                                             <a class="disabled">Unavailable</a>
@@ -449,7 +309,7 @@
                                             </div>
                                             <div class="content">
                                                 <div class="content-left">
-                                                    <h6 class="title"><a href="/productDetails/<%= product._id %>"><%= product.basicInformation.name %></a></h6>
+                                                    <h6 class="title"><a href="/productDetails/<%= product._id %>"><%= product.name %></a></h6>
                                                     <ul class="review-star">
                                                         <li class="fill"><i class="ion-android-star"></i></li>
                                                         <li class="fill"><i class="ion-android-star"></i></li>
@@ -459,7 +319,7 @@
                                                     </ul>
                                                 </div>
                                                 <div class="content-right">
-                                                    <% if (product.status) { %>
+                                                    <% if (product.isPublished) { %>
                                                         <span style="color: red;" class="price">₹<%= product.discountedPrice.toFixed(2) %></span>
                                                         <del>₹<%= product.originalPrice.toFixed(2) %></del>
                                                     <% } else { %>

@@ -38,7 +38,7 @@
                         <tbody>
                             <% order.products.forEach(item => { %>
                             <tr>
-                                <td><%= item.product.basicInformation.name %></td>
+                                <td><%= item.product.name %></td>
                                 <td><%= item.quantity %></td>
                                 <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
                             </tr>

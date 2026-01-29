@@ -135,7 +135,7 @@ async function getTopLists() {
     { $unwind: '$productDetails' },
     { $group: {
       _id: '$products.product',
-      name: { $first: '$productDetails.basicInformation.name' },
+      name: { $first: '$productDetails.name' },
       revenue: { $sum: { $multiply: ['$products.price', '$products.quantity'] } }
     }},
     { $sort: { revenue: -1 } },
@@ -182,8 +182,8 @@ async function getTopLists() {
     }},
     { $unwind: '$productDetails' },
     { $group: {
-      _id: '$productDetails.basicInformation.brand',
-      name: { $first: '$productDetails.basicInformation.brand' },
+      _id: '$productDetails.brand',
+      name: { $first: '$productDetails.brand' },
       revenue: { $sum: { $multiply: ['$products.price', '$products.quantity'] } }
     }},
     { $sort: { revenue: -1 } },

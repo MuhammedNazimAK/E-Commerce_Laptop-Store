@@ -128,7 +128,7 @@ function displayOffers(offers) {
     row.innerHTML = `
       <td>${offer._id}</td>
       <td>${offer.offerName}</td>
-      <td>${offer.isDefault ? 'All Products' : offer.product ? offer.product.basicInformation.name : 'N/A'}</td>
+      <td>${offer.isDefault ? 'All Products' : offer.product ? offer.product.name : 'N/A'}</td>
       <td>${offer.discountPercentage}%</td>
       <td>${new Date(offer.startDate).toLocaleDateString()}</td>
       <td>${new Date(offer.endDate).toLocaleDateString()}</td>
@@ -210,7 +210,7 @@ async function editOffer(offerId) {
         <div class="mb-3" id="productSelection" ${offer.isDefault ? 'style="display:none;"' : ''}>
           <label for="editProduct" class="form-label">Product</label>
           <select class="form-select" id="editProduct" ${offer.isDefault ? 'disabled' : ''}>
-            ${products.map(p => `<option value="${p._id}" ${offer.product && offer.product._id == p._id ? 'selected' : ''}>${p.basicInformation.name}</option>`).join('')}
+            ${products.map(p => `<option value="${p._id}" ${offer.product && offer.product._id == p._id ? 'selected' : ''}>${p.name}</option>`).join('')}
           </select>
         </div>
       </form>

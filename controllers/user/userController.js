@@ -20,7 +20,7 @@ require('dotenv').config();
 
 
 async function getProductWithOffers(productId) {
-  const product = await Product.findById(productId).populate('category');
+  const product = await Product.findById(productId).populate('categories');
 
   const currentDate = new Date();
 
@@ -34,7 +34,7 @@ async function getProductWithOffers(productId) {
 
   // Get category offers
   const categoryOffers = await CategoryOffer.find({
-    category: product.category._id,
+    category: product.categories._id,
     isActive: true,
     startDate: { $lte: currentDate },
     endDate: { $gte: currentDate }
@@ -51,19 +51,19 @@ async function getProductWithOffers(productId) {
   const allOffers = [...productOffers, ...categoryOffers, ...defaultOffers];
 
   let bestOffer = { discountPercentage: 0, offerName: '' };
-  let discountedPrice = product.pricingAndAvailability.salesPrice;
+  let discountedPrice = product.salePrice;
 
   if (allOffers.length > 0) {
     bestOffer = allOffers.reduce((best, current) =>
       current.discountPercentage > best.discountPercentage ? current : best
     , { discountPercentage: 0, offerName: '' });
 
-    discountedPrice = product.pricingAndAvailability.regularPrice * (1 - bestOffer.discountPercentage / 100);
+    discountedPrice = product.price * (1 - bestOffer.discountPercentage / 100);
   }
 
   return {
     ...product.toObject(),
-    originalPrice: product.pricingAndAvailability.regularPrice,
+    originalPrice: product.price,
     discountedPrice: discountedPrice,
     discount: bestOffer.discountPercentage,
     offerName: bestOffer.offerName
@@ -102,7 +102,7 @@ const renderHomePage = async (req, res) => {
     );
 
     const topBrands = await Product.aggregate([
-      { $group: { _id: "$basicInformation.brand", count: { $sum: 1 } } },
+      { $group: { _id: "$brand", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 3 }
     ]);
@@ -387,9 +387,7 @@ const renderMyAccount = async (req, res) => {
         products: orderObj.products.map(product => ({
           ...product,
           product: {
-            basicInformation: {
-              name: product.product.basicInformation ? product.product.basicInformation.name : 'Unknown Product'
-            }
+              name: product.product ? product.product.name : 'Unknown Product'
           }
         }))
       };

@@ -12,7 +12,7 @@ const getInventoryPage = async (req, res) => {
     const totalPages = Math.ceil(totalProducts / limit);
 
     const products = await Product.find()
-      .select('basicInformation.name inventory pricingAndAvailability.stockAvailability')
+      .select('name inventory pricingAndAvailability.stockAvailability')
       .skip(skip)
       .limit(limit);
 

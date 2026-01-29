@@ -199,7 +199,7 @@ async function generatePDFUser(req, res) {
       const tableTop = 250;
       const tableHeaders = ['Item', 'Qty', 'Unit Price', 'GST', 'Discount', 'Total', 'Status'];
       const tableData = order.products.map(item => [
-        item.product.basicInformation.name,
+        item.product.name,
         item.quantity.toString(),
         `${item.price.toFixed(2)}`,
         `${(item.price * 0.18).toFixed(2)}`,

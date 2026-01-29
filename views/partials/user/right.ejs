@@ -167,7 +167,7 @@ function addToCart(productId) {
 function updateCartModal(data) {
     const product = data.product;
     const images = product.images;
-    document.getElementById('modalProductImage').src = images.highResolutionPhotos;
+    document.getElementById('modalProductImage').src = images;
     document.getElementById('modalCartItemCount').textContent = data.cartItemCount;
     document.getElementById('modalTotalPrice').textContent = `₹${data.totalPrice.toFixed(2)}`;
 }
@@ -181,18 +181,15 @@ function fetchCartItems() {
         container.innerHTML = '<p class="text-center">Your cart is empty. Start shopping now!</p>';
       } else {
         container.innerHTML = data.items.map(item => {
-          if (!item || !item.basicInformation) {
-            console.error('Invalid item in cart:', item);
-            return '';
-          }
+
           return `
             <div class="offcanvas-cart-item-single">
               <div class="offcanvas-cart-item-block">
                 <a href="/product/${item._id}" class="offcanvas-cart-item-image-link">
-                  <img src="${item.images.highResolutionPhotos[0]}" alt="${item.basicInformation.name}" class="offcanvas-cart-image">
+                  <img src="${item.images[0]}" alt="${item.name}" class="offcanvas-cart-image">
                 </a>
                 <div class="offcanvas-cart-item-content">
-                  <a href="/product/${item._id}" class="offcanvas-cart-item-link">${item.basicInformation.name}</a>
+                  <a href="/product/${item._id}" class="offcanvas-cart-item-link">${item.name}</a>
                   <div class="offcanvas-cart-item-details">
                     <span class="offcanvas-cart-item-details-quantity">${item.quantity} x </span>
                     <span class="offcanvas-cart-item-details-price">₹${item.discountedPrice.toFixed(2)}</span>

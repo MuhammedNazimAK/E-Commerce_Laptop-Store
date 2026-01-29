@@ -117,7 +117,7 @@ function generateReportData(orders) {
         const productId = item.product._id.toString();
         if (!report.salesByProduct[productId]) {
           report.salesByProduct[productId] = {
-            name: item.product.basicInformation.name,
+            name: item.product.name,
             quantity: 0,
             revenue: 0
           };
