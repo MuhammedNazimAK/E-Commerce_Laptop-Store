@@ -1,161 +1,230 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const MODE = document.getElementById('update') ? 'edit' : 'add';
     const form = document.getElementById('product-form');
+    const MODE = form.dataset.mode || 'add';
+    const productId = form.dataset.productId;
 
-    const imageCropperModal = new bootstrap.Modal(document.getElementById('image-cropper-modal'), {});
+    const submitBtn = MODE === 'edit'
+        ? document.getElementById('update')
+        : document.getElementById('publish');
 
-    let cropper;
-    let orginalImages = new Map;
-    let selectedFiles = [];
+    const CONFIG = {
+        add: {
+            endpoint: '/admin/products/add',
+            method: 'POST',
+            buttonText: {
+                default: 'Publish',
+                loading: 'Publishing...'
+            },
+            successMessage: 'Product added successfully!',
+            afterSuccess: () => resetForm()
+        },
+        edit: {
+            endpoint: `/admin/products/update/${productId}`,
+            method: 'PUT',
+            buttonText: {
+                default: 'Update',
+                loading: 'Updating...'
+            },
+            successMessage: 'Product updated successfully!',
+            afterSuccess: () => { }
+        }
+    };
 
     const imageInput = document.getElementById('product_images');
     const imagePreviewContainer = document.getElementById('image-preview');
     const imageToCrop = document.getElementById('image-to-crop');
     const cropSaveButton = document.getElementById('crop-save');
 
+    const imageCropperModal = new bootstrap.Modal(document.getElementById('image-cropper-modal'), {});
+    let cropper;
+    let originalImages = new Map();
+    let selectedFiles = [];
+    let existingImages = [];
 
-    function initImageCropper(modal) {
+    document.getElementById('image-cropper-modal').addEventListener('hidden.bs.modal', () => {
+        console.log('Modal hidden. Focus now:', document.activeElement);
+    });
+
+
+    if (MODE === 'edit') {
+        existingImages = [];
+        const existingImageElements = imagePreviewContainer.querySelectorAll('img.existing-image');
+
+        existingImageElements.forEach(img => {
+            const src = img.dataset.imgSrc;
+            existingImages.push(src);
+            originalImages.set(img, src);
+        });
+    }
+
+
+    function initCropper() {
         let currentImage;
-
-        const handleImageClick = (img) => {
-            if (!orginalImages.has(img)) {
-                orginalImages.set(img, img.src);
-            }
-            currentImage = img;
-            imageToCrop.src = orginalImages.get(img) || img.src;
-            modal.show();
-        };
-
-        const handleCropSave = (button) => {
-            button.addEventListener('click', () => {
-                if (cropper) {
-                    const canvas = cropper.getCroppedCanvas();
-                    if (canvas) {
-                        canvas.toBlob((blob) => {
-                            const url = URL.createObjectURL(blob);
-                            currentImage.src = url;
-                            modal.hide();
-                        }, 'image/jpeg');
-                    }
-                }
-            });
-        };
-
-        modal._element.addEventListener('shown.bs.modal', () => {
+        imageCropperModal._element.addEventListener('shown.bs.modal', () => {
             cropper = new Cropper(imageToCrop, {
                 aspectRatio: 1,
-                viewMode: 2,
-                autoCropArea: 1,
+                viewMode: 0,
+                autoCropArea: 0.8,
                 guides: true,
-                zoomable: true
+                zoomable: true,
+                scalable: true,
+                zoomOnWheel: true,
+                wheelZoomRatio: 0.1,
+                background: true // No grid background
             });
         });
 
-        modal._element.addEventListener('hidden.bs.modal', () => {
+        imageCropperModal._element.addEventListener('hidden.bs.modal', () => {
             cropper.destroy();
             cropper = null;
         });
 
-        return { handleImageClick, handleCropSave };
-    }
+        cropSaveButton.addEventListener('click', () => {
+            if (!cropper || !currentImage) return;
 
-    if (imageCropperModal && imageCropperModal._element) {
-        const { handleImageClick, handleCropSave } = initImageCropper(imageCropperModal);
-        handleCropSave(cropSaveButton)
+            cropper.getCroppedCanvas({ fillColor: '#ffffff' }).toBlob(blob => {
+                const file = new File([blob], `cropped-${Date.now()}.jpg`, { type: 'image/jpeg' });
 
-        imagePreviewContainer.addEventListener('click', (event) => {
-            if (event.target.matches('img')) {
-                handleImageClick(event.target);
-            }
-        })
-    }
+                if (currentImage.classList.contains('existing-image')) {
+                    const src = currentImage.dataset.imgSrc;
+                    const idx = existingImages.indexOf(src);
+                    if (idx > -1) existingImages.splice(idx, 1);
 
-    const reader = new FileReader();
+                    selectedFiles.push(file);
+                    currentImage.classList.remove('existing-image');
+                    currentImage.removeAttribute('data-img-src');
+                } else {
+                    const currentSrc = originalImages.get(currentImage);
+                    const idx = selectedFiles.findIndex((_, i) => {
+                        const testImg = imagePreviewContainer.querySelector(`img[data-new-index="${i}"]`);
+                        return testImg && originalImages.get(testImg) === currentSrc;
+                    });
 
-    reader.onload = function (e) {
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.classList.add('img-thumbnail');
-        img.style.cursor = 'pointer';
-        img.loading = 'lazy';
+                    if (idx > -1) selectedFiles[idx] = file;
+                }
 
-        orginalImages.set(img, e.target.result);
+                if (currentImage.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(currentImage.src);
+                }
 
-        const imageContainer = document.createElement('div');
-        imageContainer.classList.add('img-container');
-        imageContainer.append(img);
-
-        const deleteButton = createDeleteButton(imageContainer);
-        imageContainer.appendChild(deleteButton);
-
-        imagePreviewContainer.appendChild(imageContainer);
-    }
-
-    const createDeleteButton = (index) => {
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
-        deleteButton.style.position = 'absolute';
-        deleteButton.style.top = '10px';
-        deleteButton.style.right = '10px';
-
-        deleteButton.addEventListener('click', (event) => {
-            event.stopPropagation();
-            selectedFiles.splice(index, 1);
-            updateImagePreview()
-        })
-
-        return deleteButton;
-    };
-
-    function updateImagePreview() {
-
-        const croppedSrcs = [];
-        imagePreviewContainer.querySelectorAll('img').forEach((img, index) => {
-            if (img.src.startsWith('blob:')) {
-                croppedSrcs[index] = img.src;
-            }
+                currentImage.src = URL.createObjectURL(blob);
+                updateImagePreview();
+                imageCropperModal.hide();
+            }, 'image/jpeg');
         });
 
+        return {
+            open: (img) => {
+                currentImage = img;
+                imageToCrop.src = originalImages.get(img);
+                imageCropperModal.show();
+            }
+        };
+
+    }
+
+    const cropperHandlers = initCropper();
+
+    function updateImagePreview() {
         imagePreviewContainer.innerHTML = '';
+
+        if (MODE === 'edit') {
+            existingImages.forEach(src => {
+                const container = document.createElement('div');
+                container.className = 'img-container';
+
+                const img = document.createElement('img');
+                img.src = src;
+                img.className = 'img-thumbnail existing-image';
+                img.dataset.imgSrc = src;
+
+                originalImages.set(img, src);
+
+                const del = document.createElement('button');
+                del.className = 'btn btn-danger btn-sm delete-btn';
+                del.textContent = 'Remove';
+
+                container.append(img, del);
+                imagePreviewContainer.append(container);
+            });
+        }
+
         selectedFiles.forEach((file, index) => {
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = e => {
+                const container = document.createElement('div');
+                container.className = 'img-container';
+
                 const img = document.createElement('img');
-                img.src = croppedSrcs[index] || e.target.result;
+                img.src = e.target.result;
+                img.className = 'img-thumbnail';
+                img.dataset.newIndex = index;
 
-                img.classList.add('img-thumbnail');
-                img.style.cursor = 'pointer';
-                img.loading = 'lazy';
+                originalImages.set(img, e.target.result);
 
-                orginalImages.set(img, e.target.result);
+                const del = document.createElement('button');
+                del.className = 'btn btn-danger btn-sm delete-btn';
+                del.textContent = 'Remove';
 
-                const imageContainer = document.createElement('div');
-                imageContainer.classList.add('img-container');
-                imageContainer.appendChild(img);
-
-                const deleteButton = createDeleteButton(index);
-                imageContainer.appendChild(deleteButton);
-
-                imagePreviewContainer.appendChild(imageContainer);
+                container.append(img, del);
+                imagePreviewContainer.append(container);
             };
             reader.readAsDataURL(file);
         });
     }
 
-    imageInput.addEventListener('change', (event) => {
-        const newFiles = Array.from(event.target.files);
+
+    imagePreviewContainer.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const img = event.target.closest('img');
+        const del = event.target.closest('.delete-btn');
+
+        if (img) {
+            cropperHandlers.open(img);
+            return;
+        }
+
+        if (del) {
+            const container = del.closest('.img-container');
+            const img = container.querySelector('img');
+
+            if (img.src.startsWith('blob:')) {
+                URL.revokeObjectURL(img.src);
+            }
+
+            if (img.classList.contains('existing-image')) {
+                const idx = existingImages.indexOf(img.dataset.imgSrc);
+                if (idx > -1) existingImages.splice(idx, 1);
+            } else {
+                const idx = Number(img.dataset.newIndex);
+                if (!isNaN(idx)) selectedFiles.splice(idx, 1);
+            }
+
+            updateImagePreview();
+        }
+    });
+
+    imageInput.addEventListener('change', (e) => {
+        const newFiles = Array.from(e.target.files);
+        if (selectedFiles.length + existingImages.length + newFiles.length > 5) {
+            Swal.fire({
+                title: "Too many images!",
+                text: "You can only have 5 images total.",
+                icon: "warning"
+            });
+            e.target.value = '';
+            return;
+        }
         selectedFiles = [...selectedFiles, ...newFiles];
-
-        event.target.value = '';
-
+        e.target.value = '';
         updateImagePreview();
-    })
+    });
 
     const validateForm = () => {
         const name = document.getElementById('product_name').value.trim();
         const brand = document.getElementById('product_brand').value;
-        console.log(brand);
         const description = document.getElementById('product_description').value.trim();
         const processor = document.getElementById('product_processor').value;
         const ram = document.getElementById('product_ram').value;
@@ -211,11 +280,13 @@ document.addEventListener('DOMContentLoaded', function () {
             errors.stock = 'This field must be a positive number.';
             isValid = false;
         }
-        if (images === 0) {
+        if (MODE === 'add' && images === 0) {
             errors.images = 'At least one image is required.';
             isValid = false;
-        }
-        else if (images > 5) {
+        } else if (MODE === 'edit' && images === 0 && existingImages.length === 0) {
+            errors.images = 'At least one image is required.';
+            isValid = false;
+        } else if (images + (MODE === 'edit' ? existingImages.length : 0) > 5) {
             errors.images = 'Should not exceed 5 images.';
             isValid = false;
         }
@@ -230,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 errors.salePrice = 'Sales price must be 0 or more.';
                 isValid = false;
             } else if (sp >= rp) {
-                errors.salePrice = 'Sales price must be less then regular price.';
+                errors.salePrice = 'Sales price must be less than regular price.';
                 isValid = false;
             }
         }
@@ -248,9 +319,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!validateForm()) return;
 
-        const publishButton = document.getElementById('publish');
-        publishButton.disabled = true;
-        publishButton.textContent = 'Publishing...';
+        submitBtn.disabled = true;
+        submitBtn.textContent = CONFIG[MODE].buttonText.loading;
 
         const formData = new FormData();
 
@@ -265,23 +335,27 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('price', document.getElementById('product_regularPrice').value);
         formData.append('salePrice', document.getElementById('product_salesPrice').value);
         formData.append('stock', document.getElementById('product_stockAvailability').value);
-        formData.append('isPublished', document.getElementById('product_status').value);
+        formData.append('isPublished', document.getElementById('product_status')?.value);
 
         const categories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
         formData.append('categories', JSON.stringify(categories));
 
+        if (MODE === 'edit' && existingImages.length > 0) {
+            formData.append('existingImages', JSON.stringify(existingImages));
+        }
+
         selectedFiles.forEach((file, index) => formData.append('images', file));
 
         try {
-            const response = await axios.post('/admin/products/add', formData);
+            const response = await axios({ method: CONFIG[MODE].method, url: CONFIG[MODE].endpoint, data: formData });
 
             if (response.data.success) {
                 Swal.fire({
                     title: "Success!",
-                    text: "Product saved successfully.",
+                    text: CONFIG[MODE].successMessage,
                     icon: "success"
                 });
-                resetForm();
+                CONFIG[MODE].afterSuccess?.();
             } else {
                 Swal.fire({
                     title: "Error!",
@@ -297,34 +371,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 icon: "error"
             });
         } finally {
-            publishButton.disabled = false
-            publishButton.textContent = 'Publish';
+            submitBtn.disabled = false;
+            submitBtn.textContent = CONFIG[MODE].buttonText.default;
         }
     });
 
     const resetForm = () => {
-        const form = document.getElementById('product-form');
 
-        if (form) {
-            form.reset();
+        form.reset();
+        selectedFiles = [];
 
-            if (imagePreviewContainer) imagePreviewContainer.innerHTML = '';
-
-            selectedFiles = [];
-
-            const fileInput = document.getElementById('product_images');
-            if (fileInput) fileInput.value = '';
-
-            const selects = document.querySelectorAll('select');
-            selects.forEach(select => select.value = '');
-
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(checkbox => checkbox.checked = false);
-
-            const errorMessages = document.querySelectorAll('.form-error');
-            errorMessages.forEach(errorMessage => errorMessage.textContent = '');
-        } else {
-            console.error('Form not found');
-        }
+        existingImages = [];
+        imagePreviewContainer.innerHTML = '';
+        document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
     };
 })

@@ -3,7 +3,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 <link rel="stylesheet" href="/styles/products.css">
 
-<form id="product-form">
+<form id="product-form" data-mode="edit" data-product-id="<%= product._id %>">
 <section class="content-main">
     <div class="row">
         <div class="col-12">
@@ -11,7 +11,7 @@
                 <h2 class="content-title">Edit Product</h2>
                 <div class="text-end">
                     <a href="/admin/productList" class="btn btn-secondary">Back to Product List</a>
-                    <button type="submit" class="btn btn-md rounded font-sm hover-up" id="update" data-product-id="<%= product._id %>">Update</button>
+                    <button type="submit" class="btn btn-md rounded font-sm hover-up" id="update">Update</button>
                 </div>
             </div>
         </div>
@@ -82,14 +82,14 @@
                     <!-- Images -->
                     <div class="mb-4">
                         <label for="product_images" class="form-label">Images</label>
-                        <input class="form-control" type="file" id="fileAccess" multiple>
+                        <input class="form-control" type="file" id="product_images" multiple>
                         <div id="fileAccessError" class="text-danger mt-2"></div>
-                        <div id="imagePreview" class="mt-3">
+                        <div id="image-preview" class="mt-3">
                             <% if (product.images && product.images.length > 0) { %>
                                 <% product.images.forEach((img, index) => { %>
                                     <div class="img-container">
                                         <img src="<%= img %>" class="img-thumbnail existing-image" data-img-src="<%= img %>" data-index="<%= index %>">
-                                        <button class="btn btn-danger btn-sm delete-btn" data-img-src="<%= img %>" data-index="<%= index %>">Remove</button>
+                                        <button type="button" class="btn btn-danger btn-sm delete-btn" data-img-src="<%= img %>" data-index="<%= index %>">Remove</button>
                                     </div>
                                 <% }); %>
                             <% } %>
@@ -145,26 +145,26 @@
 <%- include("../partials/admin/footer") %>
 
 <!-- Image Cropper Modal -->
-<div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="image-cropper-modal" tabindex="-1" aria-labelledby="image-cropper-modal-label">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+                <h5 class="modal-title" id="image-cropper-modal-label">Crop Image</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="cropper-container">
-                    <img id="imageToCrop" src="" alt="Image for cropping">
+                <div class=".image-cropper-wrapper">
+                    <img id="image-to-crop" src="" alt="Image to crop">
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="cropAndSave">Crop & Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="crop-save">Save</button>
             </div>
         </div>
     </div>
 </div>
 
-<script src="/javascript/products.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/javascript/products.js"></script>

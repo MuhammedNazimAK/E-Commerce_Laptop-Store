@@ -4,7 +4,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 <link rel="stylesheet" href="/styles/products.css">
 
-<form id="product-form">
+<form id="product-form" data-mode="add">
 <section class="content-main">
     <div class="row">
         <div class="col-12">
@@ -173,8 +173,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class=".image-cropper-wrapper">
-                    <img id="image-to-crop" src="" alt="Image to crop" style="width: 100%; max-height: 70vh; object-fit: contain;">
+                <div class="image-cropper-wrapper">
+                    <img id="image-to-crop" src="" alt="Image to crop">
                 </div>
             </div>
             <div class="modal-footer">

@@ -41,7 +41,7 @@ adminRoute.get('/products/:productId', adminAuth.requireAuth, productController.
 adminRoute.get('/addProduct', adminAuth.requireAuth, productController.getAddProductPage);
 adminRoute.post('/products/add', adminAuth.requireAuth, productController.addProduct);
 adminRoute.get('/editProduct/:productId', adminAuth.requireAuth, productController.getProductEditPage);
-adminRoute.put('/editProduct/:productId', adminAuth.requireAuth, productController.updateProduct);
+adminRoute.put('/products/update/:productId', adminAuth.requireAuth, productController.updateProduct);
 adminRoute.patch('/products/softDelete', adminAuth.requireAuth, productController.softDeleteProduct);
 adminRoute.delete('/deleteImage/:productId/:index', adminAuth.requireAuth, productController.deleteImage);
 

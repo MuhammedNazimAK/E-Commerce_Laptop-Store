@@ -254,6 +254,9 @@
 
   const getProductEditPage = async (req, res) => {
     const { productId } = req.params;
+    if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(StatusCodes.BAD_REQUEST).send('Invalid product ID');
+    }
 
     try {
       const product = await Product.findById(productId).lean();
@@ -353,7 +356,7 @@
             'graphicsCard': graphicsCard,
             'price': price,
             'salePrice': salePrice,
-            'isPublished': stock === 'Published',
+            'stock': stock,
             'images': imageUrls,
             'categories': parsedCategories,
           },
@@ -406,7 +409,7 @@
         if (!product) {
             return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: "Product not found" });
         }
-        product.status = !product.status; // Toggle the status
+        product.isPublished = !product.isPublished;
         await product.save();
         res.json({ success: true });
     } catch (error) {
