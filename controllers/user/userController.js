@@ -17,11 +17,8 @@ const { v4: uuidv4 } = require('uuid');
 const StatusCodes = require("../../public/javascript/statusCodes");
 require('dotenv').config();
 
-
-
 async function getProductWithOffers(productId) {
   const product = await Product.findById(productId).populate('categories');
-
   const currentDate = new Date();
 
   // Get product-specific offers
@@ -31,6 +28,7 @@ async function getProductWithOffers(productId) {
     startDate: { $lte: currentDate },
     endDate: { $gte: currentDate }
   });
+  console.log("offer", productOffers)
 
   // Get category offers
   const categoryOffers = await CategoryOffer.find({
@@ -70,11 +68,9 @@ async function getProductWithOffers(productId) {
   };
 }
 
-
 function generateUniqueReferralCode() {
   return uuidv4().substring(0, 8).toUpperCase();
 }
-
 
 const renderHomePage = async (req, res) => {
   try {
@@ -82,7 +78,6 @@ const renderHomePage = async (req, res) => {
     let userId = req.session.user?._id;
 
     if (!userId) {
-      // If the user is not authenticated, create a guest cart
       userId = req.session.guestCartId || (req.session.guestCartId = new mongoose.Types.ObjectId());
     }
 
@@ -93,7 +88,8 @@ const renderHomePage = async (req, res) => {
         return productWithOffers;
       })
     );
-
+    
+    
     const topProducts = await Promise.all(
       (await Product.find().sort({ salesCount: -1 }).limit(8)).map(async (product) => {
         const productWithOffers = await getProductWithOffers(product._id);
@@ -108,14 +104,13 @@ const renderHomePage = async (req, res) => {
     ]);
 
     const categories = await Category.find().limit(4);
-
     return { products, topProducts, topBrands, categories };
   });
-
-    return res.render("users/home", result);
+  
+    return res.render("user/home", result);
   } catch (error) {
     console.error("Error fetching data:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("users/pageNotFound", { message: "Error loading home page" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("user/pageNotFound", { message: "Error loading home page" });
   }
 };
 
@@ -125,12 +120,10 @@ const renderLoginPage = (req, res) => {
     if (req.session.user) {
       return res.redirect('/home');
     }
-    const message = req.session.message || req.flash('success') || req.flash('error') || '';
-    delete req.session.message;
-    res.render("users/login", { error: message || "" });
+    res.render("user/login", { error: null, email: "" });
   } catch (error) {
     console.error("Error in renderLoginPage:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("users/pageNotFound", { message: "Error loading login page" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("user/pageNotFound", { error: "Error loading login page" });
   }
 };
 
@@ -138,14 +131,12 @@ const renderLoginPage = (req, res) => {
 const authenticateUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email) {
-      return sendError(req, res, "Email is required");
-    }
+    if (!email) return res.status(400).json({ message: "Email is required"});
 
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user || !(bcrypt.compare(password, user.password))) {
-      return sendError(req, res, "Invalid email or password");
-    }
+    if (!user) return res.status(StatusCodes.BAD_REQUEST).render("user/login", { error: "Invalid email", email: email  });
+    if (!bcrypt.compareSync(password, user.password)) return res.status(StatusCodes.BAD_REQUEST).render("user/login", { 
+      error: "Invalid password", email: email  });
 
     req.session.user = {
       _id: user._id,
@@ -156,21 +147,12 @@ const authenticateUser = async (req, res) => {
     return res.redirect('/home'); 
   } catch (error) {
     console.error("Error in authenticateUser:", error);
-    sendError(req, res, "An error occurred during login");
   }
 };
-
-
-const sendError = (req, res, message) => {
-  req.session.message = message;
-  res.redirect("/login");
-};
-
 
 const generateOtp = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
-
 
 const sendVerificationEmail = async (email, otp) => {
   try {
@@ -184,7 +166,6 @@ const sendVerificationEmail = async (email, otp) => {
         pass: process.env.NODEMAILER_PASSWORD,
       },
     });
-
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL,
       to: email,
@@ -202,34 +183,28 @@ const sendVerificationEmail = async (email, otp) => {
 
 
 const registerUser = async (req, res) => {
+  console.log("REGISTER USER CALLED", new Date().toISOString());
   try {
     const { firstName, lastName, email, password, mobile, referralCode } = req.body;
 
-    if (!email) {
-      return sendError(req, res, "Email is required");
-    }
-
+    if (!email) return res.status(StatusCodes.BAD_REQUEST).render("user/signup", { error: "Email is required", referralCode: "" });
     const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) {
-      return sendError(req, res, "Email already in use");
-    }
+    if (existingUser) return res.status(StatusCodes.BAD_REQUEST).render("user/signup", { error: "Email already in use", referralCode: "" });
 
     const otp = generateOtp();
     console.log('otp', otp);
     const emailSent = await sendVerificationEmail(email, otp);
-
     if (!emailSent) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Failed to send verification email");
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("user/signup", { error: "Failed to send verification email", referralCode: "" });
     }
 
     let referredBy = null;
     if (referralCode) {
       referredBy = await User.findOne({ referralCode });
       if (!referredBy) {
-        return sendError(req, res, "Invalid referral code");
+        return res.status(StatusCodes.BAD_REQUEST).render("user/signup", { error: "Invalid referral code", referralCode: "" });
       }
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     req.session.userOtp = otp.toString();
@@ -242,14 +217,12 @@ const registerUser = async (req, res) => {
       referredBy: referredBy ? referredBy._id : null,
       referralCode: generateUniqueReferralCode()
     };
-
     return res.redirect('/enter-otp');
   } catch (error) {
     console.error("Error in registerUser:", error);
-    return res.redirect('/users/pageNotFound');
+    return res.redirect('/user/pageNotFound');
   }
 };
-
 
 const verifyOtpAndCreateUser = async (req, res) => {
   try {
@@ -259,7 +232,7 @@ const verifyOtpAndCreateUser = async (req, res) => {
     }
     
     if (userOtp.toString() != req.session.userOtp.toString()) {
-      return res.render('users/enter-otp', { error: 'Invalid OTP' });
+      return res.render('user/enter-otp', { error: 'Invalid OTP' });
     }
     
     const userData = req.session.userData;
@@ -284,7 +257,7 @@ const verifyOtpAndCreateUser = async (req, res) => {
     return res.json({ success: true});
   } catch (error) {
     console.error("Error in verifyOtpAndCreateUser:", error);
-    return res.redirect('/users/pageNotFound');
+    return res.redirect('/user/pageNotFound');
   }
 };
 
@@ -300,37 +273,31 @@ const resendOtp = async(req, res) => {
 
     const emailSent = await sendVerificationEmail(email, otp);
     if(!emailSent) {
-      return res.render('users/enter-otp', { error: 'Failed to send verification email' });
+      return res.render('user/enter-otp', { error: 'Failed to send verification email' });
     }
 
     req.session.userOtp = otp.toString();
     return res.json({ success: true });
   } catch (error) {
     console.error("Error in resendOtp", error);
-    res.render('users/enter-otp', { error: 'An error occurred. Please try again' });
+    res.render('user/enter-otp', { error: 'An error occurred. Please try again' });
   }
 };
 
-
 const renderOtpPage = (req, res) => {
   if (req.session.userOtp && req.session.userData) {
-    res.render('users/enter-otp', { error: '' });
+    res.render('user/enter-otp', { error: '' });
   } else {
     res.redirect('/signup');
   }
 };
 
-
 const renderRegisterPage = (req, res) => {
-  const error = req.session.message || "";
-  delete req.session.message;
   const referralCode = req.query.ref || "";
-  res.render("users/signup", { error, referralCode });
+  res.render("user/signup", { error: null, referralCode });
 };
 
-
 const renderMyAccount = async (req, res) => {
-  
   try {
     let user = null;
     let orders = [];
@@ -396,7 +363,7 @@ const renderMyAccount = async (req, res) => {
     const successMessage = req.flash('success');
     const errorMessage = req.flash('error');
 
-    res.render("users/my-account", { 
+    res.render("user/my-account", { 
       user: user || {},
       ordersData: JSON.stringify(transformedOrders),
       addresses, 
@@ -418,7 +385,6 @@ const renderMyAccount = async (req, res) => {
   }
 };
 
-
 const logoutUser = (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -427,7 +393,6 @@ const logoutUser = (req, res) => {
     res.redirect('/my-account')
   });
 };
-
 
 const updateProfile = async (req, res) => {
   try {
@@ -464,11 +429,9 @@ const updateProfile = async (req, res) => {
   }
 };
 
-
 const getChangePasswordPage = (req, res) => {
-  res.render('users/forgotPassword', { error: '' });
+  res.render('user/forgotPassword', { error: '' });
 }
-
 
 const changePassword = async (req, res) => {
     try {
@@ -518,7 +481,6 @@ const changePassword = async (req, res) => {
     }
 };
 
-
 const forgotPassword = async (req, res) => {
   try {
      const { email } = req.body;
@@ -552,7 +514,6 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-
 const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -576,11 +537,9 @@ const resetPassword = async (req, res) => {
   }
 }
 
-
 const loadResetPasswordPage = (req, res) => {
-  res.render('users/resetPassword');
+  res.render('user/resetPassword');
 }
-
 
 module.exports = {
   renderLoginPage,

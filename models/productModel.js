@@ -11,7 +11,6 @@ const productSchema = new Schema(
       trim: true,
     },
     description: { type: String, required: true, trim: true },
-
     ram: {
       type: String,
       required: true,
@@ -34,26 +33,21 @@ const productSchema = new Schema(
       required: true,
     }],
     color: { type: String, required: true, trim: true },
-
     price: { type: Number, required: true },
     salePrice: { type: Number },
     stock: { type: Number, required: true, default: 0 },
     lowStockThreshold: { type: Number, default: 5 },
-
     images: [
       {
         type: String,
         required: true,
       },
     ],
-
     isPublished: {
       type: Boolean,
       default: false,
     },
-
     views: { type: Number, default: 0 },
-
   },
   {
     timestamps: true,

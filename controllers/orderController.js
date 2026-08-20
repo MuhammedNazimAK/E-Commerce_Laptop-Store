@@ -469,7 +469,7 @@ const getRetryCheckoutPage = async (req, res) => {
           return res.status(StatusCodes.NOT_FOUND).send('Order not found');
       }
 
-      res.render('users/retry-checkout', { order });
+      res.render('user/retry-checkout', { order });
   } catch (error) {
       console.error('Error fetching order for retry checkout:', error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('An error occurred while processing your request');
@@ -496,7 +496,7 @@ const showOrderConfirmation = async (req, res) => {
       }
     
     if (!order) {
-      return res.status(StatusCodes.NOT_FOUND).render('users/pageNotFound', { message: 'Order not found' });
+      return res.status(StatusCodes.NOT_FOUND).render('user/pageNotFound', { message: 'Order not found' });
     }
     
     const orderDetails = {
@@ -524,10 +524,10 @@ const showOrderConfirmation = async (req, res) => {
       }
     };
     
-    res.render('users/order-confirmation', { order: orderDetails, showRetryPayment: order.status === 'Pending' && order.paymentMethod === 'razorpay' });
+    res.render('user/order-confirmation', { order: orderDetails, showRetryPayment: order.status === 'Pending' && order.paymentMethod === 'razorpay' });
   } catch (error) {
     console.error('Error fetching order:', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: 'An error occurred while fetching the order' });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: 'An error occurred while fetching the order' });
   }
 };
 

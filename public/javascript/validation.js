@@ -73,21 +73,6 @@ function validateRegisterForm(event) {
 
   if (!isValid) {
     event.preventDefault();
-  } else {
-    const formData = new FormData(event.target);
-    fetch("/signup", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          window.location.href = "/login";
-        } else {
-          handleServerError(data.errors);
-        }
-      })
-      .catch((error) => console.error("Error:", error));
   }
 }
 
@@ -121,21 +106,6 @@ function validateLoginForm(event) {
 
   if (!isValid) {
     event.preventDefault();
-  } else {
-    const formData = new FormData(event.target);
-    fetch("/login", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          window.location.href = "/home";
-        } else {
-          handleServerError(data.errors);
-        }
-      })
-      .catch((error) => console.error("Error:", error));
   }
 }
 

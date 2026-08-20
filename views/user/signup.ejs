@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+    <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
+    <link rel="stylesheet" href="assets/css/vendor/vendor.min.css">
+    <link rel="stylesheet" href="assets/css/plugins/plugins.min.css">
+    <link rel="stylesheet" href="assets/css/style.min.css">
+</head>
+<body>
+    <div class="customer-login">
+        <div class="container">
+            <div class="row justify-content-center align-items-center min-vh-100">
+                <div class="col-lg-8 col-md-10">
+                    <div class="account_form">
+                        <h3 class="mb-2">Create Account</h3>
+                        <p class="mb-2">The faster you fill up, the faster you get a laptop.</p>
+                        
+                        <form action="/signup" method="POST" id="registerForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="default-form-box">
+                                        <label>First Name <span>*</span>
+                                          <% if(error) { %>
+                                                <span class="text-danger"><%= error %></span>
+                                            <% } %>
+                                        </label>
+                                        <input type="text" id="firstName" name="firstName" placeholder="First Name">
+                                        <div id="firstNameError" class="error-message text-danger position-absolute" style="font-size: 0.9em;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="default-form-box">
+                                        <label>Last Name</label>
+                                        <input type="text" id="lastName" name="lastName" placeholder="Last Name">
+                                        <div id="lastNameError" class="error-message text-danger position-absolute" style="font-size: 0.9em;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="default-form-box">
+                                        <label>Email address <span>*</span></label>
+                                        <input type="text" id="email" name="email" placeholder="Email">
+                                        <div id="emailError" class="error-message text-danger position-absolute" style="font-size: 0.9em;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="default-form-box">
+                                        <label>Mobile Number <span>*</span></label>
+                                        <input type="tel" id="mobile" name="mobile" placeholder="Mobile Number">
+                                        <div id="mobileError" class="error-message text-danger position-absolute" style="font-size: 0.9em;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="default-form-box">
+                                        <label>Password <span>*</span></label>
+                                        <input type="password" id="password" name="password" placeholder="Password">
+                                        <div id="passwordError" class="error-message text-danger position-absolute" style="font-size: 0.9em;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="default-form-box">
+                                        <label>Confirm Password <span>*</span></label>
+                                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password">
+                                        <div id="confirmPasswordError" class="error-message text-danger position-absolute" style="font-size: 0.9em;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="default-form-box">
+                                        <label>Referral Code (Optional)</label>
+                                        <input type="text" id="referralCode" name="referralCode" placeholder="Referral Code" value="<%= referralCode %>">
+                                        <% if (referralCode) { %>
+                                            <div class="text-success" style="font-size: 0.85em;">You're signing up with a referral code!</div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="login_submit d-flex flex-column mt-6">
+                                <button class="btn btn-md btn-black-default-hover mb-3 w-100" type="submit">Register</button>
+                                
+                                <div class="text-center mb-3">
+                                    <a href="/auth/google" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center py-2">
+                                        <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google Logo" class="me-2">
+                                        Sign up with Google
+                                    </a>
+                                </div>
+
+                                <div class="text-center">
+                                    Already have an account? <a href="/login">Log in here</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/vendor/vendor.min.js"></script>
+    <script src="assets/js/plugins/plugins.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="/javascript/validation.js" defer></script>
+</body>
+</html>

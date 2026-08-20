@@ -12,7 +12,6 @@ const invoiceController = require('../controllers/user/invoiceController');
 const { requireAuth } = require('../middleware/auth');
 const passport = require('passport');
 
-
 //user authentication
 router.get('/', userController.renderHomePage);
 router.get('/home', requireAuth, userController.renderHomePage);
@@ -24,7 +23,6 @@ router.get('/enter-otp', userController.renderOtpPage);
 router.post('/enter-otp', userController.verifyOtpAndCreateUser);
 router.post('/resend-otp', userController.resendOtp);
 
-
 //user account
 router.get('/my-account', userController.renderMyAccount);
 router.post('/logout', requireAuth, userController.logoutUser);
@@ -35,7 +33,6 @@ router.get('/reset-password/:token', userController.loadResetPasswordPage);
 router.post('/reset-password/:token', userController.resetPassword);
 router.post('/change-password', requireAuth, userController.changePassword);
 
-
 //address controller
 router.get('/my-account/add-address', requireAuth, addressController.getAddresses);
 router.post('/my-account/add-address', requireAuth, addressController.addAddress);
@@ -45,13 +42,11 @@ router.post('/my-account/edit-address/:addressId', requireAuth, addressControlle
 router.delete('/my-account/delete-address/:addressId', requireAuth, addressController.deleteAddress);
 router.get('/address/:addressId', requireAuth, addressController.getAddressById);
 
-
 //product controller
 router.get('/productListing', productController.loadProductListingPage);
 router.get('/relatedProducts/:productId', productController.getRelatedProducts);
 router.get('/productDetails/:productId', productController.getProductDetailsViewOnUserPage);
 router.post('/productListing/search-and-sort', productController.searchAndSortProducts);
-
 
 //cart controller
 router.post('/add-to-cart', cartController.addToCart);
@@ -60,12 +55,10 @@ router.get('/cart', cartController.getCart);
 router.post('/updateCart', cartController.updateCart);
 router.get('/cart-items', cartController.getCartItems);
 
-
 //coupon controller
 router.get('/available-coupons', couponController.getAvailableCoupons);
 router.post('/apply-coupon', couponController.applyCoupon);
 router.post('/remove-coupon', couponController.removeCoupon);
-
 
 //order controller
 router.get('/checkout', cartController.checkout);
@@ -80,38 +73,36 @@ router.get('/my-account/orders/:id', requireAuth, orderController.getSingleOrder
 router.put('/my-account/cancel-order/:id', requireAuth, orderController.cancelOrder);
 router.put('/my-account/return-product/:id', requireAuth, orderController.returnOrder);
 
-
 //wishlist controller
 router.get('/wishlist', wishlistController.getWishList);
 router.get('/wishlist-items', wishlistController.getWishListItems);
 router.post('/add-to-wishlist', wishlistController.addToWishList);
 router.put('/remove-from-wishlist', wishlistController.removeFromWishList);
 
-
 //wallet controller
 router.get('/balance', requireAuth,walletController.getBalance);
 router.post('/use-funds', requireAuth, walletController.useFunds);
 router.get('/transactions', requireAuth, walletController.getTransactions);
 
-
 //Invoice Controller
 router.get('/download-invoice/:orderId', requireAuth, invoiceController.getInvoice);
 
-
-//passport authentication google
-router.get('/auth/google', passport.authenticate('google', {scope: ['profile', 'email']}));
+//google auth
+router.get('/auth/google', passport.authenticate('google', {
+  scope: ['email', 'profile'],
+  access_type: 'offline',
+  prompt: 'consent',
+}));
 router.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/signup' }),
+  passport.authenticate('google', { failureRedirect: "/login" }),
   (req, res) => {
-    req.session.user = req.user;
-    req.session.save((err) => {
-      if (err) {
-        console.error("Error saving session:", err);
-      }
-      res.redirect('/home');
-    });
+    req.session.user = {
+      _id: req.user._id,
+      email: req.user.email,
+      name: `${req.user?.firstName} ${req.user?.lastName}`,
+    }
+    res.redirect('/home');
   }
 );
-
 
 module.exports = router;

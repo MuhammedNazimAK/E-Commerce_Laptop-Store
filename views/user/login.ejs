@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
+    <link rel="stylesheet" href="assets/css/vendor/vendor.min.css">
+    <link rel="stylesheet" href="assets/css/plugins/plugins.min.css">
+    <link rel="stylesheet" href="assets/css/style.min.css">
+</head>
+<body>
+    <div class="customer-login">
+        <div class="container">
+            <div class="row justify-content-center align-items-center min-vh-100">
+                <div class="col-lg-6 col-md-8">
+                    <div class="account_form">
+                        <h3 class="mb-2">Welcome back!</h3>
+                        <p class="mb-2">Log in to access your account and start shopping.</p>
+                        <form action="/login" method="POST" id="loginForm">
+                            <div class="default-form-box">
+                                <label>Email address <span>*</span>
+                                    <% if(error) { %>
+                                        <span class="text-danger"><%= error %></span>
+                                    <% } %></label>
+                                <input type="text" id="email" name="email" placeholder="Email" value="<%= email %>">
+                                <div id="emailError" class="error-message text-danger position-absolute" style="font-size: 0.9em;"></div>
+                            </div>
+                            <div class="default-form-box">
+                                <label>Password <span>*</span></label>
+                                <input type="password" id="password" name="password" placeholder="Password">
+                                <div id="passwordError" class="error-message text-danger position-absolute" style="font-size: 0.9em;"></div>
+                            </div>
+                            
+                            <div class="login_submit d-flex flex-column mt-6">
+                                <button class="btn btn-md btn-black-default-hover mb-3 w-100" type="submit">Login</button>
+                                
+                                <div class="text-center mb-3">
+                                    <a href="/auth/google" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center py-2">
+                                        <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google Logo" class="me-2">
+                                        Sign in with Google
+                                    </a>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="/forgot-password">Lost your password?</a>
+                                    <div>
+                                        Don't have an account? <a href="/signup">Register here</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/vendor/vendor.min.js"></script>
+    <script src="assets/js/plugins/plugins.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="/javascript/validation.js" defer></script>
+</body>
+</html>

@@ -1,81 +1,29 @@
 <%- include("../partials/user/header") %>
 <%- include("../partials/user/right") %>
-
-<style>
-
-
-    .view-all-button {
-        display: block;
-        width: 200px;
-        margin: 20px auto;
-        padding: 10px;
-        text-align: center;
-        background-color: #fff;
-        color: #ff0000;
-        border: 2px solid #ff0000;
-        text-decoration: none;
-        font-weight: bold;
-        transition: all 0.3s ease;
-    }
-
-    .view-all-button:hover { 
-
-        background-color: #ff0000;
-        color: #fff;
-    }
-
-    .hero-slider-bg img {
-    max-width: 100%;
-    height: auto;
-}
-
-</style>
-    <!-- Start Hero Slider Section-->
     <div class="hero-slider-section">
-        <!-- Slider main container -->
         <div class="hero-slider-active swiper-container">
-            <!-- Additional required wrapper -->
-            <!-- <div class="swiper-wrapper"> -->
-                <!-- Start Hero Single Slider Item -->
                 <div class="hero-single-slider-item swiper-slide">
-                    <!-- Hero Slider Image -->
                     <div class="hero-slider-bg">
                         <img src="/assets/images/remake/fwebp_upscayl_4x_realesrgan-x4plus.webp" alt="">
                     </div>
-                    <!-- Hero Slider Content -->
                     <div class="hero-slider-wrapper">
                         <div class="container">
                             <div class="row">
                                 <div class="col-auto">
                                     <div class="hero-slider-content">
                                         <h4 class="subtitle"></h4>
-                                        <h2 class="title"> <br>  </h2>
-                                        <!-- <a href="product-details-default.html"
-                                            class="btn btn-lg btn-outline-golden" >shop now </a> -->
+                                        <h2 class="title"> <br></h2>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div> <!-- End Hero Single Slider Item -->
-            <!-- </div> -->
-
-            <!-- If we need pagination -->
-            <!-- <div class="swiper-pagination active-color-golden"></div> -->
-
-            <!-- If we need navigation buttons -->
-            <!-- <div class="swiper-button-prev d-none d-lg-block"></div>
-            <div class="swiper-button-next d-none d-lg-block"></div> -->
+                </div>
         </div>
     </div>
-    <!-- End Hero Slider Section-->
-
-
- <!-- <a href="productListing" class="view-all-button" data-aos="fade-up" data-aos-delay="0">VIEW ALL LAPTOPS</a> -->
 
  <!-- Top Products Section -->
  <div class="product-default-slider-section section-top-gap-100 section-fluid section-inner-bg">
-    <!-- Start Section Content Text Area -->
     <div class="section-title-wrapper" data-aos="fade-up" data-aos-delay="">
         <div class="container">
             <div class="row">
@@ -90,22 +38,21 @@
             </div>
         </div>
     </div>
+    
     <!-- Start Product Slider -->
-    <div class="product-wrapper" data-aos="fade-up" data-aos-delay="200">
+    <div class="product-wrapper" data-aos="fade-up" data-aos-delay="">
         <div class="container">
             <div class="row">
                 <div class="col-12">
                     <div class="product-slider-default-1row default-slider-nav-arrow">
                         <!-- Slider main container -->
                         <div class="swiper-container product-default-slider-4grid-1row">
-                            <!-- Additional required wrapper -->
                             <div class="swiper-wrapper">
-                                <% topProducts.forEach((product, index) => { %>
-                                    <!-- Start Product Default Single Item -->
+                                <% topProducts?.forEach((product, index) => { %>
                                     <div class="product-default-single-item product-color--golden swiper-slide">
                                         <div class="image-box" style="background-color: white;">
                                             <a href="/productDetails/<%= product._id %>" class="image-link">
-                                                <img src="<%= product.images[0] %>" alt="<%= product.name %>">
+                                                <img src="<%= product.images?.[0] %>" alt="<%= product.name %>">
                                             </a>
                                             <% if (!product.isPublished) { %>
                                                 <div class="tag">
@@ -154,7 +101,7 @@
                                                     <span style="color: red;" class="price">₹<%= product.discountedPrice.toFixed(2) %></span>
                                                     <del class="original-price">₹<%= product.originalPrice.toFixed(2) %></del>
                                                 <% } else { %>
-                                                    <span class="price">₹<%= product.originalPrice.toFixed(2) %></span>
+                                                    <span class="price">₹<%= product.originalPrice?.toFixed(2) %></span>
                                                 <% } %>
                                             </div>
                                         </div>
@@ -192,9 +139,9 @@
     </div>
     <div class="banner-wrapper clearfix">
         <% topBrands.forEach((brand, index) => { %>
-            <a href="/productListing?brand=<%= encodeURIComponent(brand._id) %>" class="banner-single-item banner-style-7 banner-animation banner-color--green float-left" data-aos="fade-up" data-aos-delay="<%= index * 200 %>">
+            <a href="/productListing?brand=<%= encodeURIComponent(brand._id) %>" class="banner-single-item banner-style-7 banner-animation banner-color--green float-left" data-aos="fade-up" data-aos-delay="">
                 <div class="image">
-                    <img class="img-fluid" src="/assets/images/Brands/<%= brand._id.toLowerCase() %>.webp" alt="<%= brand._id %>">
+                    <img class="img-fluid" src="/assets/images/Brands/<%= brand._id?.toLowerCase() %>.webp" alt="<%= brand._id %>">
                 </div>
                 <div class="content">
                     <div class="inner">
@@ -225,7 +172,7 @@
     </div>
     <div class="banner-wrapper clearfix">
         <% categories.forEach((category, index) => { %>
-            <div class="banner-single-item banner-style-4 banner-animation banner-color--golden float-left img-responsive" data-aos="fade-up" data-aos-delay="<%= index * 200 %>">
+            <div class="banner-single-item banner-style-4 banner-animation banner-color--golden float-left img-responsive" data-aos="fade-up" data-aos-delay="">
                 <div class="image">
                     <img class="img-fluid" src="/assets/images/Category/<%= category.name.toLowerCase() %>.webp" alt="<%= category.name %>">
                 </div>
@@ -243,7 +190,7 @@
 
 <div class="product-default-slider-section section-top-gap-100 section-fluid section-inner-bg">
     <!-- Start Section Content Text Area -->
-    <div class="section-title-wrapper" data-aos="fade-up" data-aos-delay="0">
+    <div class="section-title-wrapper" data-aos="fade-up" data-aos-delay="">
         <div class="container">
             <div class="row">
                 <div class="col-12">
@@ -258,7 +205,7 @@
         </div>
     </div>
     <!-- Start Section Content Text Area -->
-    <div class="product-wrapper" data-aos="fade-up" data-aos-delay="200">
+    <div class="product-wrapper" data-aos="fade-up" data-aos-delay="">
         <div class="container">
             <div class="row">
                 <div class="col-12">
@@ -366,7 +313,7 @@
                     <!-- End Service Promo Single Item -->
                     <!-- Start Service Promo Single Item -->
                     <div class="col-lg-3 col-sm-6 col-12">
-                        <div class="service-promo-single-item" data-aos="fade-up" data-aos-delay="200">
+                        <div class="service-promo-single-item" data-aos="fade-up" data-aos-delay="">
                             <div class="image">
                                 <img src="/assets/images/icons/service-promo-2.png" alt="">
                             </div>
@@ -379,7 +326,7 @@
                     <!-- End Service Promo Single Item -->
                     <!-- Start Service Promo Single Item -->
                     <div class="col-lg-3 col-sm-6 col-12">
-                        <div class="service-promo-single-item" data-aos="fade-up" data-aos-delay="400">
+                        <div class="service-promo-single-item" data-aos="fade-up" data-aos-delay="">
                             <div class="image">
                                 <img src="/assets/images/icons/service-promo-3.png" alt="">
                             </div>
@@ -392,7 +339,7 @@
                     <!-- End Service Promo Single Item -->
                     <!-- Start Service Promo Single Item -->
                     <div class="col-lg-3 col-sm-6 col-12">
-                        <div class="service-promo-single-item" data-aos="fade-up" data-aos-delay="600">
+                        <div class="service-promo-single-item" data-aos="fade-up" data-aos-delay="">
                             <div class="image">
                                   <img src="/assets/images/icons/service-promo-4.png" alt="">
                             </div>

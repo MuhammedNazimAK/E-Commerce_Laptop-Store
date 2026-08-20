@@ -27,7 +27,7 @@ const getWishListItems = async (req, res) => {
 
 
 const getWishList = async (req, res) => {
-  res.render('users/wishList');
+  res.render('user/wishList');
 }
 
 

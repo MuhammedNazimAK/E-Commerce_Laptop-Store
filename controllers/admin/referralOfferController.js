@@ -26,7 +26,7 @@ const referralOfferController = {
       res.render('admin/referral-offer-list', { referralOffers, getStatusBadge });
     } catch (error) {
       console.error("Error loading referral offer page:", error);
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
     }
   },
 
@@ -116,7 +116,7 @@ const referralOfferController = {
       res.status(StatusCodes.OK).render('admin/referral-offer-add');
     } catch (error) {
       console.error("Error loading add referral offer page:", error);
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
     }
   },
 
@@ -127,7 +127,7 @@ const referralOfferController = {
       res.status(StatusCodes.OK).json({ offers: offers });
     } catch (error) {
       console.error("Error loading referral offer page:", error);
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
     }
   }
 };

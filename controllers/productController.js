@@ -215,7 +215,7 @@
       }));
 
 
-      res.render('users/productListing', {
+      res.render('user/productListing', {
         user: req.session.user,
         brands,
         processors,
@@ -450,7 +450,7 @@
       
       incrementProductView(productId, req.session.user?._id);
 
-      res.render("users/productDetails", { product, relatedProducts, relatedProductsWithOffers });
+      res.render("user/productDetails", { product, relatedProducts, relatedProductsWithOffers });
     } catch (error) {
       console.error("Error fetching product details:", error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: "Error fetching product details" });
@@ -587,7 +587,7 @@
         res.render('admin/product-offer-list');
       } catch (error) {
         console.error("Error loading product offer page:", error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
       }
     },
     
@@ -793,7 +793,7 @@
         res.status(StatusCodes.OK).render('admin/product-offer-add', { products });
       } catch (error) {
         console.error("Error loading add product offer page:", error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
       }
     },
 
@@ -830,13 +830,13 @@
       try {
         const offer = await ProductOffer.findById(req.params.id).populate('product');
         if (!offer) {
-          return res.status(StatusCodes.NOT_FOUND).render('users/pageNotFound', { message: "Product offer not found" });
+          return res.status(StatusCodes.NOT_FOUND).render('user/pageNotFound', { message: "Product offer not found" });
         }
         const products = await Product.find({});
         res.json({ offer, products });
       } catch (error) {
         console.error("Error loading edit product offer page:", error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
       }
     },
   };

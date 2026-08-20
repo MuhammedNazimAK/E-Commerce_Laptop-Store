@@ -41,12 +41,12 @@ app.use(fileUpload({
   tempFileDir: path.join(__dirname, 'public/tmp'),
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(addUserToLocals);
 app.use(flash());
 app.use(morgan('dev'));
 
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);

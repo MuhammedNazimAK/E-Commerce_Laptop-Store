@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP Verification</title>
+    <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
+    <link rel="stylesheet" href="assets/css/vendor/vendor.min.css">
+    <link rel="stylesheet" href="assets/css/plugins/plugins.min.css">
+    <link rel="stylesheet" href="assets/css/style.min.css">
+</head>
+<body>
+    <div class="customer-login">
+        <div class="container">
+            <div class="row justify-content-center align-items-center min-vh-100">
+                <div class="col-lg-6 col-md-8">
+                    <div class="account_form">
+                        <h3 class="mb-2">OTP Verification</h3>
+                        <p class="mb-4">Please enter the OTP sent to your email to verify your account.</p>
+
+                        <form id="otpForm">
+                            <div class="default-form-box">
+                                <label>Enter OTP <span>*</span></label>
+                                <div class="otp-inputs d-flex justify-content-between gap-2 my-3">
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="otp[]" class="text-center form-control" style="height: 50px; font-size: 1.2rem;" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="otp[]" class="text-center form-control" style="height: 50px; font-size: 1.2rem;" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="otp[]" class="text-center form-control" style="height: 50px; font-size: 1.2rem;" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="otp[]" class="text-center form-control" style="height: 50px; font-size: 1.2rem;" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="otp[]" class="text-center form-control" style="height: 50px; font-size: 1.2rem;" required>
+                                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" name="otp[]" class="text-center form-control" style="height: 50px; font-size: 1.2rem;" required>
+                                </div>
+                                <div id="otpError" class="error-message text-danger position-absolute" style="font-size: 0.9em; display: none;"></div>
+                            </div>
+
+                            <div class="login_submit d-flex flex-column mt-6">
+                                <button class="btn btn-md btn-black-default-hover mb-3 w-100" type="submit">Verify Email</button>
+                                
+                                <div class="timer text-center mb-2">
+                                    Time remaining: <span id="timer">1:00</span>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <button id="resendButton" type="button" class="btn btn-link text-decoration-none p-0" disabled>Resend OTP</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast position-fixed top-0 end-0 m-3 p-3 text-white rounded" style="display: none; z-index: 1050; opacity: 0; transition: opacity 0.3s ease;"></div>
+
+    <script src="assets/js/vendor/vendor.min.js"></script>
+    <script src="assets/js/plugins/plugins.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/javascript/otp-validation.js" defer></script>
+</body>
+</html>

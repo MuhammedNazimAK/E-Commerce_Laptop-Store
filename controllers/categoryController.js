@@ -10,7 +10,7 @@ const loadCategoryManagementPage = (req, res) => {
         res.render('admin/categoryManagement');
     } catch (error) {
         console.error("Error loading category management page:", error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
     }
 };
 
@@ -121,7 +121,7 @@ const categoryOfferController = {
       res.render('admin/category-offer-list');  
     } catch (error) {
         console.error("Error loading category offer page:", error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
     }
   },
 
@@ -252,7 +252,7 @@ const loadAddCategoryOfferPage = async (req, res) => {
         res.status(StatusCodes.OK).render('admin/category-offer-add', { categories });
     } catch (error) {
         console.error("Error loading add category offer page:", error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
     }
 };
 
@@ -263,7 +263,7 @@ const loadCategoryOfferPage = async (req, res) => {
         res.status(StatusCodes.OK).json({offers: offers});
     } catch (error) {
         console.error("Error loading category offer page:", error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('users/pageNotFound', { message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
     }
 };
 

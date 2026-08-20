@@ -212,7 +212,7 @@ const getCart = async (req, res) => {
     ]);
 
     if (cart.length === 0) {
-      return res.render('users/cart', { items: [], subtotal: 0, shipping: 0, total: 0 });
+      return res.render('user/cart', { items: [], subtotal: 0, shipping: 0, total: 0 });
     }
 
     let subtotal = 0;
@@ -232,7 +232,7 @@ const getCart = async (req, res) => {
 
     const total = subtotal + shipping;
 
-    return res.render('users/cart', {
+    return res.render('user/cart', {
       items,
       subtotal,
       shipping,
@@ -300,7 +300,7 @@ const checkout = async (req, res) => {
     
     const cart = await Cart.findOne({ user: userId }).populate('items.product');
     if (!cart || cart.items.length === 0) {
-      return res.render('users/checkout', { items: [], priceDetails: {} });
+      return res.render('user/checkout', { items: [], priceDetails: {} });
     }
 
     let totalSavings = 0;
@@ -353,7 +353,7 @@ const checkout = async (req, res) => {
       shipping: 25.00.toFixed(2),
     };
 
-    return res.render('users/checkout', { items, priceDetails, addressId });
+    return res.render('user/checkout', { items, priceDetails, addressId });
   } catch (error) {
     console.error('Error in checkout:', error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' });
