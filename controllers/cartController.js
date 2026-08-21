@@ -23,7 +23,7 @@ async function getProductWithOffers(productId) {
 
   // Get category offers
   const categoryOffers = await CategoryOffer.find({
-    category: product.category._id,
+    category: product.categories._id,
     isActive: true,
     startDate: { $lte: currentDate },
     endDate: { $gte: currentDate }
@@ -68,22 +68,13 @@ const addToCart = async (req, res) => {
     let userId = req.session.user?._id;
 
     if (!userId) {
-      // If the user is not authenticated, create a guest cart
       userId = req.session.guestCartId || (req.session.guestCartId = new mongoose.Types.ObjectId());
     }
-
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Invalid product ID' });
-    }
-
-
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: 'Product not found' });
     }
-
-    // Check if there's enough stock
-    if (typeof product.stock !== 'number' || product.stock < quantity) {
+    if (!product.stock || product.stock < quantity) {
       return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Not enough stock available' });
     }
 
@@ -93,7 +84,6 @@ const addToCart = async (req, res) => {
     }
 
     const productWithOffers = await getProductWithOffers(productId);
-
     const price = productWithOffers.discountedPrice;
 
     // Check if the product is already in the cart
@@ -118,7 +108,6 @@ const addToCart = async (req, res) => {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error saving cart' });
     }    
 
-    // Populate the product details in the cart
     await cart.populate('items.product');
 
     const totalPrice = cart.items.reduce((total, item) => {

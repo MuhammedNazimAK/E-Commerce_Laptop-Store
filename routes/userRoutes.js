@@ -43,10 +43,10 @@ router.delete('/my-account/delete-address/:addressId', requireAuth, addressContr
 router.get('/address/:addressId', requireAuth, addressController.getAddressById);
 
 //product controller
-router.get('/productListing', productController.loadProductListingPage);
+router.get('/product-listing', productController.loadProductListingPage);
 router.get('/relatedProducts/:productId', productController.getRelatedProducts);
 router.get('/productDetails/:productId', productController.getProductDetailsViewOnUserPage);
-router.post('/productListing/search-and-sort', productController.searchAndSortProducts);
+router.post('/product-listing/search-and-sort', productController.searchAndSortProducts);
 
 //cart controller
 router.post('/add-to-cart', cartController.addToCart);

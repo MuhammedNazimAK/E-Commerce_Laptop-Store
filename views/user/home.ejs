@@ -70,7 +70,7 @@
                                             <div class="action-link">
                                                 <div class="action-link-left">
                                                     <% if (product.isPublished) { %>
-                                                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalAddcart" onclick="addToCart('<%= product._id %>')">Add to Cart</a>
+                                                        <a href="#" onclick="addToCart('<%= product._id %>')">Add to Cart</a>
                                                     <% } else { %>
                                                         <a class="disabled">Unavailable</a>
                                                     <% } %>
@@ -139,7 +139,7 @@
     </div>
     <div class="banner-wrapper clearfix">
         <% topBrands.forEach((brand, index) => { %>
-            <a href="/productListing?brand=<%= encodeURIComponent(brand._id) %>" class="banner-single-item banner-style-7 banner-animation banner-color--green float-left" data-aos="fade-up" data-aos-delay="">
+            <a href="/product-listing?brand=<%= encodeURIComponent(brand._id) %>" class="banner-single-item banner-style-7 banner-animation banner-color--green float-left" data-aos="fade-up" data-aos-delay="">
                 <div class="image">
                     <img class="img-fluid" src="/assets/images/Brands/<%= brand._id?.toLowerCase() %>.webp" alt="<%= brand._id %>">
                 </div>
@@ -172,14 +172,14 @@
     </div>
     <div class="banner-wrapper clearfix">
         <% categories.forEach((category, index) => { %>
-            <div class="banner-single-item banner-style-4 banner-animation banner-color--golden float-left img-responsive" data-aos="fade-up" data-aos-delay="">
+            <a href="/product-listing?category=<%= encodeURIComponent(category.name.toLowerCase()) %>" class="content">
+                <div class="banner-single-item banner-style-4 banner-animation banner-color--golden float-left img-responsive" data-aos="fade-up" data-aos-delay="">
                 <div class="image">
                     <img class="img-fluid" src="/assets/images/Category/<%= category.name.toLowerCase() %>.webp" alt="<%= category.name %>">
                 </div>
-                <a href="/productListing?category=<%= encodeURIComponent(category._id) %>" class="content">
                     <span class="round-btn"><i class="ion-ios-arrow-thin-right"></i></span>
-                  </a>                  
-            </div>
+                </div>
+            </a>                  
         <% }); %>
     </div>
 </div>
@@ -242,7 +242,7 @@
                                                 <div class="action-link">
                                                     <div class="action-link-left">
                                                         <% if (product.isPublished) { %>
-                                                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalAddcart" onclick="addToCart('<%= product._id %>')">Add to Cart</a>
+                                                            <a href="#" onclick="addToCart('<%= product._id %>')">Add to Cart</a>
                                                         <% } else { %>
                                                             <a class="disabled">Unavailable</a>
                                                         <% } %>

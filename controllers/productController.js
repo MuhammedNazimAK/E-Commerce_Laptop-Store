@@ -10,11 +10,8 @@
   const { getCachedData } = require("../utils/cache");
   const mongoose = require("mongoose");
 
-  
-
   async function getProductWithOffers(productId) {
-    const product = await Product.findById(productId).populate('category');
-  
+    const product = await Product.findById(productId).populate('categories');
     const currentDate = new Date();
   
     // Get product-specific offers
@@ -27,7 +24,7 @@
   
     // Get category offers
     const categoryOffers = await CategoryOffer.find({
-      category: product.category._id,
+      category: product.categories._id,
       isActive: true,
       startDate: { $lte: currentDate },
       endDate: { $gte: currentDate }
@@ -44,7 +41,7 @@
     const allOffers = [...productOffers, ...categoryOffers, ...defaultOffers];
   
     let bestOffer = { discountPercentage: 0, offerName: '' };
-    let discountedPrice = product.pricingAndAvailability.salesPrice;
+    let discountedPrice = product.salePrice;
   
     if (allOffers.length > 0) {
       bestOffer = allOffers.reduce((best, current) =>
@@ -63,7 +60,6 @@
     };
   }
 
-
   const getAddProductPage = async (req, res) => {
     try {
       const categories = await Category.find();
@@ -79,7 +75,6 @@
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Internal Server Error");
     }
   };
-
 
   //handle product creation
   const addProduct = async (req, res) => {
@@ -99,8 +94,6 @@
         stock,
         status,
       } = req.body;
-
-      console.log("req body", req.body);
 
       let imageUrls = [];
         if (req.files && req.files.images) {
@@ -189,50 +182,51 @@
     }
   };
 
-
   const loadProductListingPage = async (req, res) => {
     try {
-
       const { brand, category } = req.query;
-
       let filter = {};
       if (brand) {
         filter['brand'] = brand;
       }
+      let selectedCategoryId = null;
       if (category) {
-        filter.category = category;
+        const findCategory = await Category.findOne({ 
+            name: { $regex: `^${category}$`, $options: 'i' } 
+          });
+        if (findCategory) {
+          filter.categories = findCategory._id;
+          selectedCategoryId = findCategory._id.toString();
+        }
       }
-
       const brands = await Product.distinct('brand');
       const processors = await Product.distinct('processor');
       const rams = await Product.distinct('ram');
       const storages = await Product.distinct('storage');
       const graphicsCards = await Product.distinct('graphicsCard');
-      const categoryIds = await Product.distinct('category');
-      const categories = await Category.find({ _id: { $in: categoryIds } }).select('name');
-      const products = await Promise.all((await Product.find(filter)).map(async (product) => {
+      const allCategories = await Category.find();
+      const products = await Promise.all(
+        (await Product.find(filter)).map(async (product) => {
         return await getProductWithOffers(product._id);
       }));
 
-
-      res.render('user/productListing', {
+      res.render('user/product-listing', {
         user: req.session.user,
         brands,
         processors,
         rams,
         storages,
         graphicsCards,
-        categories: categories.map(cat => ({ _id: cat._id, name: cat.name })),
+        categories: allCategories,
         products,
         selectedBrand: brand,
-        selectedCategory: category
+        selectedCategory: selectedCategoryId,
       });
     } catch (error) {
       console.error('Error loading product listing page:', error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('An error occurred while loading the product listing page');
     }
   }
-
   
   const getProductDetails = async (req, res) => {
       const { productId } = req.params;
@@ -461,75 +455,62 @@
   const searchAndSortProducts = async (req, res) => {
     try {
       const { filters, sort, page, itemsPerPage, searchQuery } = req.body;
-
       const cacheKey = `productList_${JSON.stringify(filters)}_${sort}_${page}_${itemsPerPage}_${searchQuery}`;
 
       const result = await getCachedData(cacheKey, async () => {
         const aggregationPipeline = [];
         
-      // Search stage
       if (searchQuery) {
         aggregationPipeline.push({
           $match: {
             $or: [
               { "name": { $regex: searchQuery, $options: "i" } },
               { "brand": { $regex: searchQuery, $options: "i" } },
-              { "category": { $regex: searchQuery, $options: "i" } },
+              { "description": { $regex: searchQuery, $options: "i" }}
             ],
           },
         });
       }
   
-      // Match stage for filters
       const matchStage = {
         $match: {
-          "pricingAndAvailability.salesPrice": { $gte: filters.minPrice, $lte: filters.maxPrice }
+          salePrice: { $gte: filters.minPrice ?? 0, $lte: filters.maxPrice ?? Infinity }
         }
       };
   
       if (filters.brands.length > 0) {
-        matchStage.$match["brand"] = { $in: filters.brands };
+        matchStage.$match.brand = { $in: filters.brands };
       }
-      if (filters.categories && filters.categories.length > 0) {
-        matchStage.$match.category = { 
-          $elemMatch: { 
-            $in: filters.categories.map(id => new mongoose.Types.ObjectId(id))
-          }
+      if (filters.categories?.length > 0) {
+        matchStage.$match.categories = { 
+          $in: filters.categories.map(id => new mongoose.Types.ObjectId(id))
         };
       }
-      if (filters.rams.length > 0) {
-        matchStage.$match["ram"] = { $in: filters.rams };
+      if (filters.rams?.length > 0) {
+        matchStage.$match.ram = { $in: filters.rams };
       }
-      if (filters.processors.length > 0) {
-        matchStage.$match["processor"] = { $in: filters.processors };
+      if (filters.processors?.length > 0) {
+        matchStage.$match.processor = { $in: filters.processors };
       }
-      if (filters.graphicsCards.length > 0) {
-        matchStage.$match["graphicsCard"] = { $in: filters.graphicsCards };
-      }
-      if (filters.minRating > 0) {
-        matchStage.$match.averageRating = { $gte: filters.minRating };
-      }
-      if (filters.featured) {
-        matchStage.$match.featured = true;
+      if (filters.graphicsCards?.length > 0) {
+        matchStage.$match.graphicsCard = { $in: filters.graphicsCards };
       }
       if (filters.newArrivals) {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         matchStage.$match.createdAt = { $gte: thirtyDaysAgo };
       }
-  
       aggregationPipeline.push(matchStage);
 
-  
       switch (sort) {
         case "popularity":
-          aggregationPipeline.push({ $sort: { viewCount: -1 } });
+          aggregationPipeline.push({ $sort: { views: -1 } });
           break;
         case "priceAsc":
-          aggregationPipeline.push({ $sort: { "pricingAndAvailability.salesPrice": 1 } });
+          aggregationPipeline.push({ $sort: { "salePrice": 1 } });
           break;
         case "priceDesc":
-          aggregationPipeline.push({ $sort: { "pricingAndAvailability.salesPrice": -1 } });
+          aggregationPipeline.push({ $sort: { "salePrice": -1 } });
           break;
         case "ratingDesc":
           aggregationPipeline.push({ $sort: { averageRating: -1 } });
@@ -550,18 +531,14 @@
           aggregationPipeline.push({ $sort: { createdAt: 1 } });
       }
   
-      // Count total products
       const countPipeline = [...aggregationPipeline, { $count: "total" }];
       const countResult = await Product.aggregate(countPipeline);
       const totalProducts = countResult.length > 0 ? countResult[0].total : 0;
   
-      // Pagination
       aggregationPipeline.push(
         { $skip: (page - 1) * itemsPerPage },
         { $limit: itemsPerPage }
       );
-  
-      // Execute the aggregation
       const products = await Product.aggregate(aggregationPipeline);
   
       return {
@@ -578,10 +555,8 @@
     }
   };
 
-
   //product offer controller
   const productOfferController = {
-    
     getProductOffersPage: async (req, res) => {
       try {
         res.render('admin/product-offer-list');

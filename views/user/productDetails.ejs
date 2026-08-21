@@ -75,7 +75,7 @@
                 </div>
             </div>
             <div class="col-xl-7 col-lg-6">
-                <div class="product-details-content-area product-details--golden" data-aos="fade-up" data-aos-delay="200">
+                <div class="product-details-content-area product-details--golden" data-aos="fade-up" data-aos-delay="0">
                     <!-- Start  Product Details Text Area-->
                     <div class="product-details-text">
                         <h4 class="title"><%= product.name %></h4>
@@ -130,7 +130,7 @@
                         
                             <div class="product-add-to-cart-btn">
                                 <% if (product.pricingAndAvailability.stockAvailability > 0) { %>
-                                    <a href="#" class="btn btn-block btn-lg btn-black-default-hover" data-bs-toggle="modal" data-bs-target="#modalAddcart" id="quantity" onclick="addToCart('<%= product._id %>')">+ Add To Cart</a>
+                                    <a href="#" class="btn btn-block btn-lg btn-black-default-hover" id="quantity" onclick="addToCart('<%= product._id %>')">+ Add To Cart</a>
                                 <% } else if (product.pricingAndAvailability.status === 'sold_out') { %>
                                     <button class="btn btn-block btn-lg btn-secondary" disabled>Sold Out</button>
                                 <% } else if (product.pricingAndAvailability.status === 'unavailable') { %>
@@ -372,7 +372,7 @@
                                                 </a>
                                                 <div class="action-link">
                                                     <div class="action-link-left">
-                                                        <a href="#" class="btn btn-block btn-lg btn-black-default-hover" data-bs-toggle="modal" data-bs-target="#modalAddcart" id="quantity" onclick="addToCart('<%= product._id %>')">+ Add To Cart</a>                                                    </div>
+                                                        <a href="#" class="btn btn-block btn-lg btn-black-default-hover" id="quantity" onclick="addToCart('<%= product._id %>')">+ Add To Cart</a>                                                    </div>
                                                     <div class="action-link-right">
                                                         <a href="#" data-bs-toggle="modal" data-bs-target="#modalQuickview"><i class="icon-magnifier"></i></a>
                                                         <a href="#"><i class="icon-heart add-to-wishlist <%= product.inWishlist ? 'added-to-wishlist' : ''%>" data-product-id="<%= product._id %>"></i></a>

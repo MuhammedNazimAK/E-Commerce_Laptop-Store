@@ -88,15 +88,12 @@ const renderHomePage = async (req, res) => {
         return productWithOffers;
       })
     );
-    
-    
     const topProducts = await Promise.all(
       (await Product.find().sort({ salesCount: -1 }).limit(8)).map(async (product) => {
         const productWithOffers = await getProductWithOffers(product._id);
         return productWithOffers;
       })
     );
-
     const topBrands = await Product.aggregate([
       { $group: { _id: "$brand", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
