@@ -26,6 +26,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'adminPublic')));
 app.use(nocache());
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
