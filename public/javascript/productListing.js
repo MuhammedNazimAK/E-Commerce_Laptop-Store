@@ -63,14 +63,11 @@ function initEventListeners() {
     });
   }
 
-  const sortSelect = document.getElementById('sort-select');
-  if (sortSelect) {
-    sortSelect.addEventListener('change', (e) => {
-      sortOption = e.target.value;
-      currentPage = 1;
-      fetchProducts();
-    });
-  }
+  $('#sort-select').on('change', function () {
+    sortOption = $(this).val();
+    currentPage = 1;
+    fetchProducts();
+  });
 
   document.querySelectorAll('.brand-filter, .category-filter, .ram-filter, .processor-filter, .graphics-card-filter')
     .forEach(checkbox => {
@@ -190,32 +187,34 @@ function updateProductContainer(products) {
     const discountPercentage = product.discount || (originalPrice > discountedPrice ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) : 0);
 
     productElement.innerHTML = `
-      <div class="image-box" style="background-color: white;">
-        <a href="/productDetails/${product._id}" class="image-link">
-          <img src="${product.images[0]}" alt="${product.name}" style="width: 100%; height: 250px; object-fit: contain;">
-        </a>
-      </div>
-      <div class="product-list-content">
-        <h5 class="product-list-link"><a href="/productDetails/${product._id}">${product.name}</a></h5>
-        ${isUnavailable ?
-          '<span class="product-unavailable">Currently Unavailable</span>' :
-          `<span class="product-list-price">
-            ${discountedPrice < originalPrice ?
-              `<del>₹${originalPrice.toFixed(2)}</del> ₹${discountedPrice.toFixed(2)}
-              <span class="discount-percentage">(${discountPercentage}% off)</span>` :
-              `₹${originalPrice.toFixed(2)}`
-            }
-          </span>`
-        }
-        ${product.offerName ? `<p class="offer-name">${product.offerName}</p>` : ''}
-        <p>${truncatedDescription}</p>
-        <div class="product-action-icon-link-list">
-          ${isUnavailable ? '' : `
-            <a href="#" class="btn btn-lg btn-black-default-hover add-to-cart" data-product-id="${product._id}">Add to cart</a>
-            <a href="#" class="btn btn-lg btn-black-default-hover add-to-wishlist ${product.inWishlist ? 'added-to-wishlist' : ''}" data-product-id="${product._id}">
-              <i class="icon-heart"></i>
-            </a>
-          `}
+      <div style="display: flex; gap: 20px; align-items: flex-start;">
+        <div class="image-box" style="background-color: white; flex: 0 0 250px; width: 250px;">
+          <a href="/productDetails/${product._id}" class="image-link">
+            <img src="${product.images[0]}" alt="${product.name}" style="width: 100%; height: 250px; object-fit: contain;">
+          </a>
+        </div>
+        <div class="product-list-content" style="flex: 1; min-width: 0;">
+          <h5 class="product-list-link"><a href="/productDetails/${product._id}">${product.name}</a></h5>
+          ${isUnavailable ?
+            '<span class="product-unavailable">Currently Unavailable</span>' :
+            `<span class="product-list-price">
+              ${discountedPrice < originalPrice ?
+                `<del>₹${originalPrice.toFixed(2)}</del> ₹${discountedPrice.toFixed(2)}
+                <span class="discount-percentage">(${discountPercentage}% off)</span>` :
+                `₹${originalPrice.toFixed(2)}`
+              }
+            </span>`
+          }
+          ${product.offerName ? `<p class="offer-name">${product.offerName}</p>` : ''}
+          <p>${truncatedDescription}</p>
+          <div class="product-action-icon-link-list">
+            ${isUnavailable ? '' : `
+              <a href="#" class="btn btn-lg btn-black-default-hover add-to-cart" data-product-id="${product._id}">Add to cart</a>
+              <a href="#" class="btn btn-lg btn-black-default-hover add-to-wishlist ${product.inWishlist ? 'added-to-wishlist' : ''}" data-product-id="${product._id}">
+                <i class="icon-heart"></i>
+              </a>
+            `}
+          </div>
         </div>
       </div>
     `;

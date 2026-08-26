@@ -75,13 +75,13 @@ function generateUniqueReferralCode() {
 const renderHomePage = async (req, res) => {
   try {
 
-    let userId = req.session.user?._id;
-
-    if (!userId) {
-      userId = req.session.guestCartId || (req.session.guestCartId = new mongoose.Types.ObjectId());
+    let userLoggedIn = !!req.session.user;
+    if (!userLoggedIn && !req.session.guestCartId) {
+      req.session.guestCartId = new mongoose.Types.ObjectId();
     }
 
     const result = await getCachedData('homePage', async () => {
+
     const products = await Promise.all(
       (await Product.find().limit(16)).map(async (product) => {
         const productWithOffers = await getProductWithOffers(product._id);
@@ -104,13 +104,12 @@ const renderHomePage = async (req, res) => {
     return { products, topProducts, topBrands, categories };
   });
   
-    return res.render("user/home", result);
+    return res.render("user/home", { ...result, userLoggedIn, cartId: req.session.user?.cartId || req.session.guestCartId });
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("user/pageNotFound", { message: "Error loading home page" });
   }
 };
-
 
 const renderLoginPage = (req, res) => {
   try {
@@ -123,7 +122,6 @@ const renderLoginPage = (req, res) => {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("user/pageNotFound", { error: "Error loading login page" });
   }
 };
-
 
 const authenticateUser = async (req, res) => {
   try {

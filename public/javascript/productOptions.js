@@ -1,5 +1,3 @@
-// backend/constants/productOptions.js
-
 const productOptions = {
   brands: [
     "Apple",

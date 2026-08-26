@@ -66,9 +66,11 @@
                                         <li>
                                             <a href="checkout">Checkout</a>
                                         </li>
+                                        <% if (!userLoggedIn) { %>
                                         <li>
                                             <a href="login">Login</a>
                                         </li>
+                                        <% } %>
                                         <li>
                                             <a href="my-account">My Account</a>
                                         </li>                                 
@@ -96,7 +98,7 @@
                                         <i class="icon-magnifier"></i>
                                     </a>
                                 </li>
-                            </ul>                            
+                            </ul>                         
                             <!-- End Header Action Link -->
                         </div>
                     </div>
@@ -113,17 +115,15 @@
                 document.getElementById('wishlist-count').textContent = data.length;
             })
             .catch(error => console.error('Error fetching wishlist items:', error));
-
         fetch('/cart-items')
             .then(response => response.json())
             .then(data => {
                 document.getElementById('cart-count').textContent = data.items.length;
             })
             .catch(error => console.error('Error fetching cart items:', error));
-    }
+        }
 
     document.addEventListener('DOMContentLoaded', updateItemCounts);
-
         document.addEventListener('DOMContentLoaded', function() {
         const loadingScreen = document.querySelector('.loading-screen');
         
@@ -137,4 +137,4 @@
             }, 500);
         }, 500);
         });
-    </script>
+</script>
