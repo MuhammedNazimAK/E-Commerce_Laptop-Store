@@ -47,7 +47,7 @@ async function getProductWithOffers(productId) {
   const allOffers = [...productOffers, ...categoryOffers, ...defaultOffers];
 
   let bestOffer = { discountPercentage: 0, offerName: '' };
-  let discountedPrice = product.pricingAndAvailability.salesPrice;
+  let discountedPrice = product.salePrice;
 
   if (allOffers.length > 0) {
     bestOffer = allOffers.reduce((best, current) =>

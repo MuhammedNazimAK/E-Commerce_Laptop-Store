@@ -45,12 +45,12 @@ router.get('/address/:addressId', requireAuth, addressController.getAddressById)
 //product controller
 router.get('/product-listing', productController.loadProductListingPage);
 router.get('/relatedProducts/:productId', productController.getRelatedProducts);
-router.get('/productDetails/:productId', productController.getProductDetailsViewOnUserPage);
+router.get('/product-details/:productId', productController.getProductDetailsViewOnUserPage);
 router.post('/product-listing/search-and-sort', productController.searchAndSortProducts);
 
 //cart controller
 router.post('/add-to-cart', cartController.addToCart);
-router.post('/removeFromCart', cartController.removeFromCart);
+router.post('/remove-from-cart', cartController.removeFromCart);
 router.get('/cart', cartController.getCart);
 router.post('/updateCart', cartController.updateCart);
 router.get('/cart-items', cartController.getCartItems);

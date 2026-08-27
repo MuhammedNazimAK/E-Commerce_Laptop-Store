@@ -8,28 +8,31 @@
       align-items: center;
       margin-bottom: 15px;
     }
-  
     .applied-coupon-info {
       flex-grow: 1;
     }
-  
     #remove-coupon {
       margin-left: 10px;
+    }
+    .breadcrumb-wrapper--compact {
+      padding-top: 8px !important;
+      padding-bottom: 16px !important;
+      margin-bottom: 0 !important;
     }
   </style>  
 
 <!-- ...:::: Start Breadcrumb Section:::... -->
-<div class="breadcrumb-section breadcrumb-bg-color--golden">
-  <div class="breadcrumb-wrapper">
+<div class="breadcrumb-section p-0">
+  <div class="breadcrumb-wrapper p-0 breadcrumb-wrapper--compact">
       <div class="container">
           <div class="row">
               <div class="col-12">
                   <h3 class="breadcrumb-title">Cart</h3>
-                  <div class="breadcrumb-nav breadcrumb-nav-color--black breadcrumb-nav-hover-color--golden">
+                  <div class="breadcrumb-nav breadcrumb-nav-color--black breadcrumb-nav-hover-color--golden text-start d-flex justify-content-start my-0 py-0">
                       <nav aria-label="breadcrumb">
                           <ul>
                               <li><a href="/home">Home</a></li>
-                              <li><a href="shop-grid-sidebar-left.html">Shop</a></li>
+                              <li><a href="/product-listing">Shop</a></li>
                               <li class="active" aria-current="page">Cart</li>
                           </ul>
                       </nav>
@@ -70,7 +73,7 @@
                                       </a>
                                     </td>
                                     <td class="product_thumb">
-                                      <a href="/productDetails/<%= item._id %>">
+                                      <a href="/product-details/<%= item._id %>">
                                         <% if (item.images && item.images && item.images.length > 0) { %>
                                           <img src="<%= item.images[0] %>" alt="<%= item.name %>">
                                         <% } else { %>
@@ -79,7 +82,7 @@
                                       </a>
                                     </td>
                                     <td class="product_name">
-                                      <a href="/productDetails/<%= item._id %>"><%= item.name %></a>
+                                      <a href="/product-details/<%= item._id %>"><%= item.name %></a>
                                     </td>
                                     <td class="product-price">
                                       <% if (item.discountedPrice < item.originalPrice) { %>
@@ -92,7 +95,7 @@
                                     </td>
                                     <td class="product_quantity">
                                       <label>Quantity</label>
-                                      <input type="number" class="quantity-input" value="<%= item.quantity %>" min="1" max="<%= item.pricingAndAvailability.stockAvailability %>" data-product-id="<%= item._id %>">
+                                      <input type="number" class="quantity-input" value="<%= item.quantity %>" min="1" max="<%= item.stock %>" data-product-id="<%= item._id %>">
                                     </td>
                                     <td class="product_total">₹<%= (item.discountedPrice * item.quantity).toFixed(2) %></td>
                                   </tr>
@@ -122,12 +125,12 @@
                         <p>Enter your coupon code if you have one.</p>
                         <input class="mb-2" id="coupon-input" placeholder="Coupon code" type="text">
                         <button type="button" id="apply-coupon" class="btn btn-md btn-golden">Apply coupon</button>
-                        <button type="button" id="view-coupons" class="btn btn-md btn-golden mt-2">View Available Coupons</button>
+                        <button type="button" id="view-coupons" class="btn btn-md btn-golden">View Available Coupons</button>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 col-md-6">
-                <div class="coupon_code right" data-aos="fade-up" data-aos-delay="400">
+                <div class="coupon_code right" data-aos="fade-up" data-aos-delay="0">
                     <h3>Cart Totals</h3>
                     <div class="coupon_inner">
                         <div id="applied-coupon">

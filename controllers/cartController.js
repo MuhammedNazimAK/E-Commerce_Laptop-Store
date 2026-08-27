@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 
 
 async function getProductWithOffers(productId) {
-  const product = await Product.findById(productId).populate('category');
+  const product = await Product.findById(productId).populate('categories');
 
   const currentDate = new Date();
 
@@ -61,84 +61,39 @@ async function getProductWithOffers(productId) {
   };
 }
 
-
 const addToCart = async (req, res) => {
+  let userId = req.session.user?._id || req.session.guestId;
   try {
     const { productId, quantity } = req.body;
-    let userId = req.session.user?._id;
+    const qty = Number(quantity);
 
-    if (!userId) {
-      userId = req.session.guestCartId || (req.session.guestCartId = new mongoose.Types.ObjectId());
-    }
     const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: 'Product not found' });
-    }
-    if (!product.stock || product.stock < quantity) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Not enough stock available' });
-    }
+    if (!product) return res.status(StatusCodes.NOT_FOUND).json({ success: false, message: 'Product not found' });
+    if (product.stock < qty) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Not enough stock' });
 
-    let cart = await Cart.findOne({ user: userId });
-    if (!cart) {
-      cart = new Cart({ user: userId, items: [] });
-    }
+    let cart = await Cart.findOne({ user: userId }) || new Cart({ user: userId, items: [] });
+    const item = cart.items.find(i => i.product.toString() === productId);
+    const newQty = (item?.quantity ?? 0) + qty;
 
-    const productWithOffers = await getProductWithOffers(productId);
-    const price = productWithOffers.discountedPrice;
+    if (newQty > 5) return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Max quantity per item is 5' });
 
-    // Check if the product is already in the cart
-    const cartItemIndex = cart.items.findIndex(item => item.product.toString() === productId);
-    if (cartItemIndex !== -1) {
-      const newQuantity = cart.items[cartItemIndex].quantity + quantity;
-      if (newQuantity > 5) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Maximum quantity per item is 5' });
-      }
-      cart.items[cartItemIndex].quantity = newQuantity;
-    } else {
-      if (quantity > 5) {
-        return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Maximum quantity per item is 5' });
-      }
-      cart.items.push({ product: productId, quantity: quantity, price: price });
-    }
+    if (item) item.quantity = newQty;
+    else cart.items.push({ product: productId, quantity: qty });
 
-    try {
-      await cart.save();
-    } catch (saveError) {
-      console.error('Error saving cart:', saveError);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error saving cart' });
-    }    
-
-    await cart.populate('items.product');
-
-    const totalPrice = cart.items.reduce((total, item) => {
-      return total + (item.product.salePrice || item.product.price) * item.quantity;
-    }, 0);  
-
-    return res.json({
-      success: true,
-      product: {
-        id: product.id,
-        name: product.name,
-        images: product.images[0],
-        salesPrice: product.salePrice
-      },
-      cartItemCount: cart.items.length,
-      totalPrice: totalPrice,
-    });
-
-  } catch (error) {
-    console.error('Error:', error);
+    await cart.save();
+    return res.json({ success: true, cartItemCount: cart.items.length });
+  } catch (err) {
+    console.error(err);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' });
   }
 };
-
 
 const removeFromCart = async (req, res) => {
   try {
         
     const { productId } = req.body;
     
-    const userId = req.session.user?._id || req.session.guestCartId;
+    const userId = req.session.user?._id || req.session.guestId;
 
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: 'Invalid product ID' });
@@ -167,7 +122,7 @@ const removeFromCart = async (req, res) => {
 
 const getCart = async (req, res) => {
   try {
-    const userId = req.session.user?._id || req.session.guestCartId;
+    const userId = req.session.user?._id || req.session.guestId;
 
     const cart = await Cart.aggregate([
       { $match: { user: new mongoose.Types.ObjectId(userId) } },
@@ -237,7 +192,7 @@ const getCart = async (req, res) => {
 const updateCart = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
-    const userId = req.session.user?._id || req.session.guestCartId;
+    const userId = req.session.user?._id || req.session.guestId;
 
     const cart = await Cart.findOne({ user: userId });
     if (!cart) {
@@ -282,10 +237,6 @@ const checkout = async (req, res) => {
   try {
     let userId = req.session.user?._id;
     const addressId = await Address.findOne({ userId: userId });
-  
-    if (!userId) {
-      userId = req.session.guestCartId || (req.session.guestCartId = new mongoose.Types.ObjectId());
-    }
     
     const cart = await Cart.findOne({ user: userId }).populate('items.product');
     if (!cart || cart.items.length === 0) {
@@ -349,11 +300,9 @@ const checkout = async (req, res) => {
   }
 };
 
-
-
 const getCartItems = async (req, res) => {
   try {
-    const userId = req.session.user?._id || req.session.guestCartId;
+    const userId = req.session.user?._id || req.session.guestId;
 
     const cart = await Cart.aggregate([
       { $match: { user: new mongoose.Types.ObjectId(userId) } },

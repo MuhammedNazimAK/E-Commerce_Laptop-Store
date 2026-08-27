@@ -74,12 +74,7 @@ function generateUniqueReferralCode() {
 
 const renderHomePage = async (req, res) => {
   try {
-
     let userLoggedIn = !!req.session.user;
-    if (!userLoggedIn && !req.session.guestCartId) {
-      req.session.guestCartId = new mongoose.Types.ObjectId();
-    }
-
     const result = await getCachedData('homePage', async () => {
 
     const products = await Promise.all(
@@ -103,8 +98,7 @@ const renderHomePage = async (req, res) => {
     const categories = await Category.find().limit(4);
     return { products, topProducts, topBrands, categories };
   });
-  
-    return res.render("user/home", { ...result, userLoggedIn, cartId: req.session.user?.cartId || req.session.guestCartId });
+    return res.render("user/home", { ...result, userLoggedIn, cartId: req.session.user?.cartId || req.session.guestId });
   } catch (error) {
     console.error("Error fetching data:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).render("user/pageNotFound", { message: "Error loading home page" });

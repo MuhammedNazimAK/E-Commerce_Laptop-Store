@@ -82,15 +82,15 @@
                             <!-- Start Header Action Link -->
                             <ul class="header-action-link action-color--black action-hover-color--golden">
                                 <li>
-                                    <a href="#offcanvas-wishlish" class="offcanvas-toggle">
+                                    <a href="wishlist">
                                         <i class="icon-heart"></i>
-                                        <span class="item-count" id="wishlist-count">0</span>
+                                        <span id="wishlist-count">0</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#offcanvas-add-cart" class="offcanvas-toggle">
+                                    <a href="cart">
                                         <i class="icon-bag"></i>
-                                        <span class="item-count" id="cart-count">0</span>
+                                        <span id="cart-count">0</span>
                                     </a>
                                 </li>
                                 <li>
@@ -108,33 +108,17 @@
     </header>
 
     <script>
-    function updateItemCounts() {
-        fetch('/wishlist-items')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('wishlist-count').textContent = data.length;
-            })
-            .catch(error => console.error('Error fetching wishlist items:', error));
-        fetch('/cart-items')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('cart-count').textContent = data.items.length;
-            })
-            .catch(error => console.error('Error fetching cart items:', error));
-        }
-
-    document.addEventListener('DOMContentLoaded', updateItemCounts);
-        document.addEventListener('DOMContentLoaded', function() {
-        const loadingScreen = document.querySelector('.loading-screen');
-        
-        // Show loading screen
-        loadingScreen.style.display = 'flex';
-        
+    document.addEventListener('DOMContentLoaded', function() {
+    const loadingScreen = document.querySelector('.loading-screen');
+    
+    // Show loading screen
+    loadingScreen.style.display = 'flex';
+    
+    setTimeout(() => {
+        loadingScreen.classList.add('hide');
         setTimeout(() => {
-            loadingScreen.classList.add('hide');
-            setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            }, 500);
+        loadingScreen.style.display = 'none';
         }, 500);
-        });
+    }, 500);
+    });
 </script>

@@ -420,7 +420,7 @@
         {
           $or: [
             { 'brand': product.brand },
-            { 'category': { $in: product.category } }
+            { 'category': { $in: product.categories } }
           ]
         }
       ]
@@ -428,7 +428,6 @@
 
     return relatedProducts;
   };
-
 
   const getProductDetailsViewOnUserPage = async (req, res) => {
     const { productId } = req.params;

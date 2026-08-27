@@ -11,6 +11,7 @@ const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const flash = require('connect-flash');
 const { addUserToLocals } = require('./middleware/authMiddleware');
+const { default: mongoose } = require("mongoose");
 
 const PORT = process.env.PORT;
 const app = express();
@@ -51,10 +52,16 @@ app.use(addUserToLocals);
 app.use(flash());
 app.use(morgan('dev'));
 
+app.use((req, res, next) => {
+    const userLoggedIn = !!req.session.user;
+    if (!userLoggedIn && !req.session.guestId) {
+        req.session.guestId = new mongoose.Types.ObjectId();
+    }
+    next();
+});
 
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -6,15 +6,14 @@ const StatusCodes = require('../public/javascript/statusCodes');
 
 const getWishListItems = async (req, res) => {
   try {
-    const userId = req.session.user?._id;
+    const userId = req.session.user?._id || req.session.guestId;
     const wishlist = await WishList.findOne({ userId }).populate('products.productId');
-    
     const wishlistItems = wishlist ? wishlist.products.map(item => ({
       productId: item.productId._id,
       name: item.productId.name,
-      price: item.productId.pricingAndAvailability.salesPrice || item.productId.price,
+      price: item.productId.salePrice || item.productId.price,
       image: item.productId.images[0],
-      stockAvailability: item.productId.pricingAndAvailability.stockAvailability > 0,
+      stock: item.productId.stock > 0,
       isPublished: item.productId.isPublished
     })) : [];
 
@@ -30,19 +29,12 @@ const getWishList = async (req, res) => {
   res.render('user/wishList');
 }
 
-
 const addToWishList = async (req, res) => {
   try {
     const { productId } = req.body;
-    let userId = req.session.user?._id;
-
-    if (!userId) {
-      // If the user is not authenticated, create a guest cart
-      userId = req.session.guestCartId || (req.session.guestCartId = new mongoose.Types.ObjectId());
-    }
+    let userId = req.session.user?._id || req.session.guestId;
 
     let wishlist = await WishList.findOne({ userId });
-
     if (!wishlist) {
       wishlist = new WishList({ userId, products: [] });
     }

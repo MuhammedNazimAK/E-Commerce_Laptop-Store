@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
     const confirmed = await Swal.fire({
       title: 'Are you sure?',
-      text: 'You won\'t be able to revert this!',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -37,10 +36,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
     if (confirmed.isConfirmed) {
       try {
-        const response = await axios.post('/removeFromCart', { productId });
+        const response = await axios.post('/remove-from-cart', { productId });
         if (response.data.success) {
           row.remove();
-          updateItemCounts();
+          document.dispatchEvent(new Event('cart:changed'));
           updateCartTotals();
           showSuccess('Item removed successfully');
         } else {
@@ -71,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const total = row.querySelector('.product_total');
         total.textContent = `₹${(price * quantity).toFixed(2)}`;
         updateCartTotals();
+        showSuccess("Quantity Updated");
       } else {
         showError(response.data.message || 'Failed to update quantity');
         e.target.value = response.data.quantity;
@@ -188,30 +188,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
     // Update shipping display
     document.getElementById('shipping').textContent = `${shipping.toFixed(2)}`;
-  }
-  
-  function showError(message) {
-    Swal.fire({
-      icon: "error",
-      text: message,
-      toast: true,
-      position: "top-right",
-      showConfirmButton: false,
-      timerProgressBar: true,
-      timer: 3000,
-    });
-  }
-  
-  function showSuccess(message) {
-    Swal.fire({
-      icon: "success",
-      text: message,
-      toast: true,
-      position: "top-right",
-      showConfirmButton: false,
-      timerProgressBar: true,
-      timer: 3000,
-    });
   }
   
   document.querySelectorAll('.product_quantity input').forEach(input => {

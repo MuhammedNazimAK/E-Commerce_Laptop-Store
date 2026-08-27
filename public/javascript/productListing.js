@@ -189,12 +189,12 @@ function updateProductContainer(products) {
     productElement.innerHTML = `
       <div style="display: flex; gap: 20px; align-items: flex-start;">
         <div class="image-box" style="background-color: white; flex: 0 0 250px; width: 250px;">
-          <a href="/productDetails/${product._id}" class="image-link">
+          <a href="/product-details/${product._id}" class="image-link">
             <img src="${product.images[0]}" alt="${product.name}" style="width: 100%; height: 250px; object-fit: contain;">
           </a>
         </div>
         <div class="product-list-content" style="flex: 1; min-width: 0;">
-          <h5 class="product-list-link"><a href="/productDetails/${product._id}">${product.name}</a></h5>
+          <h5 class="product-list-link"><a href="/product-details/${product._id}">${product.name}</a></h5>
           ${isUnavailable ?
             '<span class="product-unavailable">Currently Unavailable</span>' :
             `<span class="product-list-price">
@@ -218,14 +218,6 @@ function updateProductContainer(products) {
         </div>
       </div>
     `;
-
-    const addToCartBtn = productElement.querySelector('.add-to-cart');
-    if (addToCartBtn) {
-      addToCartBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        addToCart(product._id);
-      });
-    }
 
     container.appendChild(productElement);
   });
