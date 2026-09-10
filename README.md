@@ -6,7 +6,7 @@ A full-featured e-commerce web application built with a custom backend and dynam
 
 ## Live Demo
 
-🟢 [Live Site](https://e-commerce-laptop-store.onrender.com)
+🟢 [Live Site](https://e-commerce-laptop-store-kz90.onrender.com)
 
 ---
 
