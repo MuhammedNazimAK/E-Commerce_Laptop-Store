@@ -4,7 +4,6 @@ const { validationResult } = require('express-validator');
 const StatusCodes = require('../public/javascript/statusCodes');
 
 
-
 const loadCategoryManagementPage = (req, res) => {
     try {
         res.render('admin/categoryManagement');
@@ -13,7 +12,6 @@ const loadCategoryManagementPage = (req, res) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound', { message: "Internal server error" });
     }
 };
-
 
 const getAllCategories = async (req, res) => {
   try {
@@ -24,7 +22,7 @@ const getAllCategories = async (req, res) => {
       const totalCategories = await Category.countDocuments();
       const totalPages = Math.ceil(totalCategories / limit);
 
-      const categories = await Category.find({}, '_id name description')
+      const categories = await Category.find({}, '_id name description isBlocked')
           .skip(skip)
           .limit(limit);
 
@@ -39,7 +37,6 @@ const getAllCategories = async (req, res) => {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
   }
 };
-
 
 const addNewCategory = async (req, res) => {
     const { name, description } = req.body;
@@ -57,7 +54,6 @@ const addNewCategory = async (req, res) => {
     }
 };
 
-
 // Get a specific category
 const getCategory = async (req, res) => {
     try {
@@ -71,7 +67,6 @@ const getCategory = async (req, res) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
     }
 };
-
 
 const editExistingCategory = async (req, res) => {
     const { name, description } = req.body;
@@ -91,9 +86,9 @@ const editExistingCategory = async (req, res) => {
     }
 };
 
-
 const softDeleteCategory = async (req, res) => {
     const categoryId = req.query.categoryId;
+    console.log("id", categoryId)
     try {
         const category = await Category.findById(categoryId);
         if (!category) {

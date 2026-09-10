@@ -19,7 +19,7 @@ const loadAdminLoginPage = async (req, res) => {
 };
 
 
-const   verifyAdminCredentials = async (req, res) => {
+const verifyAdminCredentials = async (req, res) => {
     const { email, password } = req.body;
     const errors = {};
 

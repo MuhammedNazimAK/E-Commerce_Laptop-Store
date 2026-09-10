@@ -81,13 +81,15 @@
                                 <div class="filter-type-select">
                                     <ul>
                                         <% categories.forEach(category => { %>
-                                        <li>
-                                            <label class="checkbox-default" for="category-<%= category._id %>">
-                                                <input type="checkbox" id="category-<%= category._id %>" value="<%= category._id %>" class="category-filter"
-                                                    <%= selectedCategory === category._id.toString() ? 'checked' : '' %>>
-                                                <span><%= category.name %></span>
-                                            </label>
-                                        </li>
+                                            <% if(!category.isBlocked) { %>
+                                                <li>
+                                                    <label class="checkbox-default" for="category-<%= category._id %>">
+                                                        <input type="checkbox" id="category-<%= category._id %>" value="<%= category._id %>" class="category-filter"
+                                                            <%= selectedCategory === category._id.toString() ? 'checked' : '' %>>
+                                                        <span><%= category.name %></span>
+                                                    </label>
+                                                </li>
+                                            <% } %>
                                         <% }) %>
                                     </ul>
                                 </div>
