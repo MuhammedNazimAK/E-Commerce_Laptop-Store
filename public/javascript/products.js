@@ -41,11 +41,6 @@ document.addEventListener('DOMContentLoaded', function () {
     let selectedFiles = [];
     let existingImages = [];
 
-    document.getElementById('image-cropper-modal').addEventListener('hidden.bs.modal', () => {
-        console.log('Modal hidden. Focus now:', document.activeElement);
-    });
-
-
     if (MODE === 'edit') {
         existingImages = [];
         const existingImageElements = imagePreviewContainer.querySelectorAll('img.existing-image');

@@ -454,7 +454,6 @@
   const searchAndSortProducts = async (req, res) => {
     try {
       const { filters, sort, page, itemsPerPage, searchQuery } = req.body;
-      console.log("sort", sort);
       const cacheKey = `productList_${JSON.stringify(filters)}_${sort}_${page}_${itemsPerPage}_${searchQuery}`;
 
       const result = await getCachedData(cacheKey, async () => {

@@ -28,7 +28,6 @@ async function getProductWithOffers(productId) {
     startDate: { $lte: currentDate },
     endDate: { $gte: currentDate }
   });
-  console.log("offer", productOffers)
 
   // Get category offers
   const categoryOffers = await CategoryOffer.find({
@@ -172,7 +171,6 @@ const sendVerificationEmail = async (email, otp) => {
 
 
 const registerUser = async (req, res) => {
-  console.log("REGISTER USER CALLED", new Date().toISOString());
   try {
     const { firstName, lastName, email, password, mobile, referralCode } = req.body;
 

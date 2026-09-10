@@ -1,30 +1,14 @@
 <%- include("../partials/user/header") %>
 <%- include("../partials/user/right") %>
-<div class="hero-slider-section">
-  <div class="hero-slider-active swiper-container">
-    <div class="hero-single-slider-item swiper-slide">
-      <div class="hero-slider-bg">
-        <img src="/assets/images/remake/fwebp_upscayl_4x_realesrgan-x4plus.webp" alt="">
-      </div>
-      <div class="hero-slider-wrapper">
-        <div class="container">
-          <div class="row">
-            <div class="col-auto">
-              <div class="hero-slider-content">
-                <h4 class="subtitle"></h4>
-                <h2 class="title"> <br></h2>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="hero-slider-bg">
+  <a href="/product-listing?brand=Asus %>">
+    <img src="/assets/images/remake/fwebp_upscayl_4x_realesrgan-x4plus.webp" alt="">
+  </a>
 </div>
 
 <!-- Top Products Section -->
-<div class="product-default-slider-section section-top-gap-100 section-fluid section-inner-bg">
-  <div class="section-title-wrapper" data-aos="fade-up" data-aos-delay="">
+<div class="product-default-slider-section section-fluid section-inner-bg">
+  <div class="section-title-wrapper">
     <div class="container">
       <div class="row">
         <div class="col-12">
@@ -177,7 +161,6 @@
         <div class="image">
           <img class="img-fluid" src="/assets/images/Category/<%= category.name.toLowerCase() %>.webp" alt="<%= category.name %>">
         </div>
-        <span class="round-btn"><i class="ion-ios-arrow-thin-right"></i></span>
       </div>
     </a>
     <% }); %>
@@ -188,7 +171,7 @@
 
 
 
-<div class="product-default-slider-section section-top-gap-100 section-fluid section-inner-bg">
+<div class="product-default-slider-section section-fluid section-inner-bg">
   <!-- Start Section Content Text Area -->
   <div class="section-title-wrapper" data-aos="fade-up" data-aos-delay="">
     <div class="container">

@@ -21,7 +21,6 @@ function loadWishlistItems() {
   axios.get('/wishlist-items')
     .then(response => {
       const wishlistTable = document.querySelector('.wishlish-table-wrapper tbody');
-      console.log("reponse", response.data)
       wishlistTable.innerHTML = '';
       response.data.forEach(item => {
         const row = createWishlistItemRow(item);
